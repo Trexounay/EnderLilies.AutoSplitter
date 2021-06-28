@@ -7,6 +7,7 @@ state("EnderLiliesSteam-Win64-Shipping", "v1.03.13175 (Steam)")
     ** 1: menu
     ** 3: game
     */
+
 	int isMainMenu : 0x4164948;
 	bool isGamePlaying : 0x461FBE8;
 	bool isLoading : 0x44E7134;

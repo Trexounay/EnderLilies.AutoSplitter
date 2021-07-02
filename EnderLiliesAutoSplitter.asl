@@ -5,8 +5,8 @@ state("EnderLiliesSteam-Win64-Shipping", "v1.06.13282(Steam)")
 {
     bool isBossBattle : 0x044B5560, 0x748, 0x78, 0xDF4;
 
-	bool isInGame : 0x045FEF80, 0xC60, 0x900;
-	bool isLoading : 0x040CE480, 0x54C;
+    bool isInGame : 0x045FEF80, 0xC60, 0x900;
+    bool isLoading : 0x040CE480, 0x54C;
 
     string100 currentLevel : 0x040BF310, 0x88, 0x0;
     string100 previousLevel : 0x040BF310, 0x60, 0x0;
@@ -23,6 +23,7 @@ startup
 init
 {
     version = "v1.06.13282(Steam)";
+    vars.current_boss = "";
 }
 
 split
@@ -35,7 +36,7 @@ split
     if (settings["split_boss_killed"])
     {
         if (old.isBossBattle && !current.isBossBattle &&
-            old.currentLevel == current.currentLevel)
+            vars.current_boss_room == current.currentLevel)
             return true;
     }
     return false;
@@ -45,6 +46,11 @@ update
 {
     if (version == "")
         return false;
+
+    if (!old.isBossBattle && current.isBossBattle)
+    {
+        vars.current_boss_room = current.currentLevel;
+    }
 }
 
 

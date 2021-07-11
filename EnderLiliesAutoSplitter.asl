@@ -23,7 +23,14 @@ startup
     settings.Add("load_remover", true, "Load Remover");
     settings.Add("config_split", true, "Splits Configuration");
     settings.Add("split_boss_killed", true, "Boss killed", "config_split");
-    settings.Add("split_stone_tablet", false, "Stone Tablets", "config_split");
+    settings.Add("split_stone_tablet", false, "Stone tablets", "config_split");
+    settings.Add("split_stone_tablet_1", true, "Tablet (1/7)", "split_stone_tablet");
+    settings.Add("split_stone_tablet_2", true, "Tablet (2/7)", "split_stone_tablet");
+    settings.Add("split_stone_tablet_3", true, "Tablet (3/7)", "split_stone_tablet");
+    settings.Add("split_stone_tablet_4", true, "Tablet (4/7)", "split_stone_tablet");
+    settings.Add("split_stone_tablet_5", true, "Tablet (5/7)", "split_stone_tablet");
+    settings.Add("split_stone_tablet_6", true, "Tablet (6/7)", "split_stone_tablet");
+    settings.Add("split_stone_tablet_7", true, "Tablet (7/7)", "split_stone_tablet");
     settings.Add("split_room_changed", false, "Room changed", "config_split");
 }
 
@@ -100,7 +107,14 @@ split
     if (settings["split_stone_tablet"])
     {
         if (current.stoneTablets > old.stoneTablets)
-            return true;
+            if ((settings["split_stone_tablet_1"] && current.stoneTablets == 1) ||
+                (settings["split_stone_tablet_2"] && current.stoneTablets == 2) ||
+                (settings["split_stone_tablet_3"] && current.stoneTablets == 3) ||
+                (settings["split_stone_tablet_4"] && current.stoneTablets == 4) ||
+                (settings["split_stone_tablet_5"] && current.stoneTablets == 5) ||
+                (settings["split_stone_tablet_6"] && current.stoneTablets == 6) ||
+                (settings["split_stone_tablet_7"] && current.stoneTablets == 7))
+                return true;
     }
     return false;
 }

@@ -7,40 +7,33 @@ state("EnderLiliesSteam-Win64-Shipping", "v1.06.13282(Steam)")
 
     bool isInGame : 0x045FEF80, 0xC60, 0x900;
     bool isLoading : 0x040CE480, 0x54C;
+    
+    int isCinematic : 0x40D3D10;
+    
+    int stoneTablets : 0x0460D700, 0x30, 0x738, 0x2B8, 0x2A8,
+    0x28, 0x20, 0x20, 0x28, 0x20, 0x20, 0x2D0, 0x590, 0xFC;
 
     string100 currentLevel : 0x040BF310, 0x88, 0x0;
     string100 previousLevel : 0x040BF310, 0x60, 0x0;
 }
+
 
 startup
 {
     settings.Add("load_remover", true, "Load Remover");
     settings.Add("config_split", true, "Splits Configuration");
     settings.Add("split_boss_killed", true, "Boss killed", "config_split");
+    settings.Add("split_stone_tablet", false, "Stone Tablets", "config_split");
     settings.Add("split_room_changed", false, "Room changed", "config_split");
 }
+
 
 init
 {
     version = "v1.06.13282(Steam)";
-    vars.current_boss = "";
+    current.debug = "";
 }
 
-split
-{
-    if (settings["split_room_changed"])
-    {
-        if (old.currentLevel == current.previousLevel)
-            return true;
-    }
-    if (settings["split_boss_killed"])
-    {
-        if (old.isBossBattle && !current.isBossBattle &&
-            vars.current_boss_room == current.currentLevel)
-            return true;
-    }
-    return false;
-}
 
 update
 {
@@ -51,23 +44,23 @@ update
     {
         vars.current_boss_room = current.currentLevel;
     }
-}
+    
+    if (old.isLoading || current.isLoading)
+    {
+        old.stoneTablets = current.stoneTablets;
+        old.isBossBattle = current.isBossBattle;
+    }
 
+    return true;
+}
 
 start
 {
     if (!old.isInGame && current.isInGame)
-        return true;
-    return false;
-}
-
-reset
-{
-    if (!current.isInGame)
     {
         return true;
     }
-	return false;
+    return false;
 }
 
 isLoading
@@ -75,6 +68,39 @@ isLoading
     if (settings["load_remover"])
     {
         return current.isLoading;
+    }
+    return false;
+}
+
+
+reset
+{
+    if (!current.isInGame)
+    {
+        return true;
+    }
+    return false;
+}
+
+
+split
+{
+    if (old.debug != current.debug)
+        print(current.debug);
+    if (settings["split_boss_killed"])
+    {
+        if (old.isBossBattle && !current.isBossBattle)
+            return true;
+    }
+    if (settings["split_room_changed"])
+    {
+        if (old.currentLevel == current.previousLevel)
+            return true;
+    }
+    if (settings["split_stone_tablet"])
+    {
+        if (current.stoneTablets > old.stoneTablets)
+            return true;
     }
     return false;
 }

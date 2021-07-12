@@ -89,7 +89,7 @@ startup
 	settings.Add("split_area", false, "Areas", "config_split");
 	foreach (KeyValuePair<string, string> kvp in vars.game_area)
 	{
-		settings.Add(kvp.Value, true, kvp.Key, "split_area");
+		settings.Add(kvp.Value, false, kvp.Key, "split_area");
 	}
 
 	settings.Add("split_respite", false, "Respite Rooms", "config_split");

@@ -158,15 +158,6 @@ update
 		old.stoneTablets = current.stoneTablets;
 		old.isBossBattle = current.isBossBattle;
 	}
-
-	current.debug = "";
-	current.debug += old.isBossBattle.ToString();
-	current.debug += "->";
-	current.debug += current.isBossBattle.ToString();
-	current.debug += "|";
-	current.debug += old.playerHP.ToString();
-	current.debug += "->";
-	current.debug += current.playerHP.ToString();
 	return true;
 }
 

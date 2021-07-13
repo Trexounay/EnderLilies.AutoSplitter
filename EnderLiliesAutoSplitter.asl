@@ -85,7 +85,7 @@ startup
 		{"Cliffside Hamlet Youth",	"map_church_07"},
 		{"Headless Defender",		"map_village_08"},
 		{"Western Merchant",		"map_village_04_1"},
-		{"Castle Town Maiden",		"map_castle_02"},
+		{"Castle Town Maiden",		"map_castle_01"},
 		{"Fallen Archer",			"map_cave_19"},
 		{"Elder Crypt Keeper",		"map_cave_07"},
 		{"Fungal Sorcerer",			"map_forest_06"},

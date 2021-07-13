@@ -108,12 +108,12 @@ startup
 	settings.Add("split_boss_killed", true, "Main Boss Killed", "config_split");
 	foreach (KeyValuePair<string, string> kvp in vars.boss_rooms)
 	{
-		settings.Add(kvp.Value, true, kvp.Key, "split_boss_killed");
+		settings.Add("boss_" + kvp.Value, true, kvp.Key, "split_boss_killed");
 	}
 	settings.Add("split_miniboss_killed", true, "Sub-Boss Killed", "config_split");
 	foreach (KeyValuePair<string, string> kvp in vars.miniboss_rooms)
 	{
-		settings.Add(kvp.Value, true, kvp.Key, "split_miniboss_killed");
+		settings.Add("boss_" + kvp.Value, true, kvp.Key, "split_miniboss_killed");
 	}
 	
 	settings.Add("split_stone_tablet", false, "Stone tablets", "config_split");
@@ -144,7 +144,18 @@ init
 	version = "v1.06.13282(Steam)";
 	current.debug = "";
 	
-	vars.map_split = new HashSet<string>();
+	vars.splits_done = new HashSet<string>();
+}
+
+
+start
+{
+	if (!old.isInGame && current.isInGame)
+	{
+		vars.splits_done = new HashSet<string>();
+		return true;
+	}
+	return false;
 }
 
 
@@ -161,25 +172,6 @@ update
 	return true;
 }
 
-start
-{
-	if (!old.isInGame && current.isInGame)
-	{
-		vars.map_split = new HashSet<string>();
-		foreach (KeyValuePair<string, string> kvp in vars.game_area)
-		{
-			if (settings[kvp.Value])
-				vars.map_split.Add(kvp.Value);
-		}
-		foreach (KeyValuePair<string, string> kvp in vars.respites)
-		{
-			if (settings[kvp.Value])
-				vars.map_split.Add(kvp.Value);
-		}
-		return true;
-	}
-	return false;
-}
 
 isLoading
 {
@@ -202,8 +194,12 @@ split
 	if (old.debug != current.debug)
 		print(current.debug);
 
-	if (old.isBossBattle && !current.isBossBattle && settings[current.currentLevel] && current.playerHP > 0)
+	if (old.isBossBattle && !current.isBossBattle && current.playerHP > 0 &&
+		!vars.splits_done.Contains(current.currentLevel) && settings["boss_" + current.currentLevel])
+	{
+		vars.splits_done.Add(current.currentLevel);
 		return true;
+	}
 
 	if (settings["split_stone_tablet"])
 	{
@@ -215,19 +211,27 @@ split
 				(settings["split_stone_tablet_5"] && current.stoneTablets == 5) ||
 				(settings["split_stone_tablet_6"] && current.stoneTablets == 6) ||
 				(settings["split_stone_tablet_7"] && current.stoneTablets == 7))
+			{
 				return true;
+			}
 	}
 
 	if (current.previousLevel != "" && old.currentLevel == current.previousLevel)
 	{
-		foreach (string key in vars.map_split)
+		foreach (KeyValuePair<string, string> kvp in vars.game_area)
 		{
-			if (current.currentLevel.StartsWith(key))
+			if (settings[kvp.Value] && !vars.splits_done.Contains(kvp.Value)
+				&& current.currentLevel.StartsWith(kvp.Value))
 			{
-				vars.map_split.Remove(key);
-				vars.map_split.Remove(current.currentLevel);
+				vars.splits_done.Add(current.currentLevel);
+				vars.splits_done.Add(kvp.Value);
 				return true;
 			}
+		}
+		if (settings[current.currentLevel] && !vars.splits_done.Contains(current.currentLevel))
+		{
+			vars.splits_done.Add(current.currentLevel);
+			return true;
 		}
 	}
 	return false;

@@ -4,9 +4,6 @@
 */
 state("EnderLiliesSteam-Win64-Shipping", "v1.06.13282(Steam)")
 {
-	bool isInGame : 0x045FEF80, 0xC60, 0x900;
-	bool isLoading : 0x040CE480, 0x54C;
-
 	string100 currentLevel : 0x040BF310, 0x88, 0x0;
 	string100 previousLevel : 0x040BF310, 0x60, 0x0;
 
@@ -14,6 +11,14 @@ state("EnderLiliesSteam-Win64-Shipping", "v1.06.13282(Steam)")
 	int stoneTablets : 0x0460D700, 0x30, 0x738, 0x2B8, 0x2A8,
 	0x28, 0x20, 0x20, 0x28, 0x20, 0x20, 0x2D0, 0x590, 0xFC;
 	int playerHP : 0x4621010, 0x8, 0x8, 0x140, 0x710, 0x290, 0x2B8, 0x114;
+	
+	// GEngine : 0x4621080
+	// GEngine->GameInstance->Subsystems->SaveSubsystem
+	int currentBackupIndex : 0x4621080, 0xDE8, 0xF0, 0xB0, 0x58;
+	
+	// GEngine->GameInstance->Subsystems->WorldLoaderSubsystem
+	string100 levelToLoad : 0x4621080, 0xDE8, 0xF0, 0xF8, 0x70, 0x0;
+	bool bProcessingLoad : 0x4621080, 0xDE8, 0xF0, 0xF8, 0x8C;
 }
 
 
@@ -104,12 +109,14 @@ startup
 	settings.Add("load_remover", true, "Load Remover");
 	
 	settings.Add("config_split", true, "Splits Configuration");
-	
+	settings.Add("split_endingA", true, "Ending A", "config_split");
 	settings.Add("split_boss_killed", true, "Main Boss Killed", "config_split");
+
 	foreach (KeyValuePair<string, string> kvp in vars.boss_rooms)
 	{
 		settings.Add("boss_" + kvp.Value, true, kvp.Key, "split_boss_killed");
 	}
+
 	settings.Add("split_miniboss_killed", true, "Sub-Boss Killed", "config_split");
 	foreach (KeyValuePair<string, string> kvp in vars.miniboss_rooms)
 	{
@@ -150,7 +157,7 @@ init
 
 start
 {
-	if (!old.isInGame && current.isInGame)
+	if (old.levelToLoad == "TitleMap" && current.levelToLoad == "PersistentGameMap")
 	{
 		vars.splits_done = new HashSet<string>();
 		return true;
@@ -164,7 +171,7 @@ update
 	if (version == "")
 		return false;
 	
-	if (old.isLoading || current.isLoading)
+	if (old.bProcessingLoad || current.bProcessingLoad)
 	{
 		old.stoneTablets = current.stoneTablets;
 		old.isBossBattle = current.isBossBattle;
@@ -175,13 +182,13 @@ update
 
 isLoading
 {
-	return settings["load_remover"] && current.isLoading;
+	return settings["load_remover"] && current.bProcessingLoad;
 }
 
 
 reset
 {
-	if (!current.isInGame)
+	if (current.levelToLoad == "TitleMap")
 	{
 		return true;
 	}
@@ -195,9 +202,9 @@ split
 		print(current.debug);
 
 	if (old.isBossBattle && !current.isBossBattle && current.playerHP > 0 &&
-		!vars.splits_done.Contains(current.currentLevel) && settings["boss_" + current.currentLevel])
+		!vars.splits_done.Contains("boss_" + current.currentLevel) && settings["boss_" + current.currentLevel])
 	{
-		vars.splits_done.Add(current.currentLevel);
+		vars.splits_done.Add("boss_" + current.currentLevel);
 		return true;
 	}
 
@@ -233,6 +240,16 @@ split
 			vars.splits_done.Add(current.currentLevel);
 			return true;
 		}
+	}
+	
+	// ending A
+	if (settings["split_endingA"] &&
+		old.currentBackupIndex != current.currentBackupIndex &&
+		current.currentLevel == "map_outside_02" &&
+		!vars.splits_done.Contains("ending_" + current.currentLevel))
+	{
+		vars.splits_done.Add("ending_" + current.currentLevel);
+		return true;
 	}
 	return false;
 }

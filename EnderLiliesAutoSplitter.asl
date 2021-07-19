@@ -24,7 +24,6 @@ state("EnderLiliesSteam-Win64-Shipping", "v1.06.13282(Steam)")
 
 	// GEngine->GameInstance->Subsystems->SaveSubsystem
 	int currentBackupIndex : 0x4621080, 0xDE8, 0xF0, 0xB0, 0x58;
-	int currentBackupIndex : 0x4621080, 0xDE8, 0xF0, 0xB0, 0x58;
 	
 	// GEngine->GameInstance->Subsystems->WorldLoaderSubsystem
 	string100 levelToLoad : 0x4621080, 0xDE8, 0xF0, 0xF8, 0x70, 0x0;

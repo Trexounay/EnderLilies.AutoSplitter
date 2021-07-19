@@ -159,9 +159,9 @@ startup
 		{"Fretia's Ring", 0x00000000001D95E1},
 	};
 	settings.Add("load_remover", true, "Load Remover");
-	settings.SetToolTip("load_remover", "Don't ");
+	settings.SetToolTip("load_remover", "Pause timer during game loadings, only affects Game Time");
 	settings.Add("load_remover_igt", false, "Set LiveSplit to Game Time", "load_remover");
-	settings.SetToolTip("load_remover_igt", "Prompt the user if LiveSplit is not configured to compare against Game Time");
+	settings.SetToolTip("load_remover_igt", "Check if LiveSplit is using Game Time when starting the game");
 	
 	settings.Add("config_split", true, "Splits Configuration");
 	settings.Add("split_ending", true, "Game Endings", "config_split");

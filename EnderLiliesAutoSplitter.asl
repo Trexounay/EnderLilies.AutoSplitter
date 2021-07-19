@@ -8,17 +8,31 @@ state("EnderLiliesSteam-Win64-Shipping", "v1.06.13282(Steam)")
 	string100 previousLevel : 0x040BF310, 0x60, 0x0;
 
 	bool isBossBattle : 0x044B5560, 0x748, 0x78, 0xDF4;
-	int stoneTablets : 0x0460D700, 0x30, 0x738, 0x2B8, 0x2A8,
-	0x28, 0x20, 0x20, 0x28, 0x20, 0x20, 0x2D0, 0x590, 0xFC;
-	int playerHP : 0x4621010, 0x8, 0x8, 0x140, 0x710, 0x290, 0x2B8, 0x114;
-	
+
 	// GEngine : 0x4621080
+	// GEngine->GameInstance->LocalPlayers[0]->PlayerController->ParameterPlayerComponent
+	int stoneTablets : 0x4621080, 0xDE8, 0x38, 0x0, 0x30, 0x590, 0xFC;
+
+	// GEngine->GameInstance->LocalPlayers[0]->PlayerController->Character
+	ulong ParameterPlayerComponent : 0x4621080, 0xDE8, 0x38, 0x0, 0x30, 0x590;
+
+	// GEngine->GameInstance->LocalPlayers[0]->PlayerController->Character->HPComponent
+	int playerHP : 0x4621080, 0xDE8, 0x38, 0x0, 0x30, 0x260, 0x548, 0x114;
+
+	// GEngine->GameInstance->LocalPlayers[0]->PlayerController->Character
+	float timeSinceStartup : 0x4621080, 0xDE8, 0x38, 0x0, 0x30, 0x260, 0x114;
+
 	// GEngine->GameInstance->Subsystems->SaveSubsystem
+	int currentBackupIndex : 0x4621080, 0xDE8, 0xF0, 0xB0, 0x58;
 	int currentBackupIndex : 0x4621080, 0xDE8, 0xF0, 0xB0, 0x58;
 	
 	// GEngine->GameInstance->Subsystems->WorldLoaderSubsystem
 	string100 levelToLoad : 0x4621080, 0xDE8, 0xF0, 0xF8, 0x70, 0x0;
 	bool bProcessingLoad : 0x4621080, 0xDE8, 0xF0, 0xF8, 0x8C;
+	bool bWaitingForFade : 0x4621080, 0xDE8, 0xF0, 0xF8, 0x8D;
+	
+	// GEngine->GameInstance->LocalPlayers[0]->PlayerController->InventoryComponent->ItemPassiveInventory->Count
+	int relicsCount : 0x4621080, 0xDE8, 0x38, 0x0, 0x30, 0x588, 0x190, 0x68;
 }
 
 
@@ -106,24 +120,72 @@ startup
 		{"One-Eyed Royal Aegis",	"map_castle_16"},
 	};
 	
+	vars.relics_ids = new Dictionary<string, long> {
+		{"Soiled Prayer Beads", 0x00000000001D946F},
+		{"Royal Aegis Crest", 0x00000000001D947B},
+		{"Broken Music Box", 0x00000000001D9487},
+		{"Cracked Familiar Stone", 0x00000000001D9492},
+		{"Snowdrop Bracelet", 0x00000000001D949D},
+		{"Blighted Appendage", 0x00000000001D94A8},
+		{"Giant's Ring", 0x00000000001D94B1},
+		
+		{"Ancient Dragon Claw", 0x00000000001D94BE},
+		{"Rusted Blue Ornament", 0x00000000001D94CB},
+		{"Executioner's Gloves", 0x00000000001D94D8},
+		{"Decayed Crown", 0x00000000001D94E4},
+		{"Weathered Necklace", 0x00000000001D94F5},
+		{"Immortal's Crest", 0x00000000001D9501},
+		{"Manisa's Ring", 0x00000000001D950E},
+		
+		{"Aura's Ring", 0x00000000001D9522},
+		{"Kilteus' Ring", 0x00000000001D9536},
+		{"Calivia's Ring", 0x00000000001D9546},
+		{"White Priestess Statue", 0x00000002001D9556},
+		{"Priestess' Doll", 0x00000004001D9556},
+		{"White Priestess' Earrings", 0x00000003001D9556},
+		{"Holy Spring Water", 0x00000000001D9563},
+		
+		{"Nymphilia's Ring", 0x00000000001D9570},
+		{"Spellbound Anklet", 0x00000000001D957B},
+		{"Vibrant Plume", 0x00000000001D9588},
+		{"Ruined Witch's Book", 0x00000000001D9595},
+		{"Bloodstained Ribbon", 0x00000002001D95A0},
+		{"Blightwreathed Blade", 0x00000003001D95A0},
+		{"Heretic's Mask", 0x00000000001D95A9},
+		
+		{"Eldred's Ring", 0x00000000001D95B8},
+		{"Ricorus' Ring", 0x00000000001D95C7},
+		{"Luminant Aegis Curio", 0x000000000000A3C7},
+		{"Lost Heirloom", 0x00000000001D95D1},
+		{"Fretia's Ring", 0x00000000001D95E1},
+	};
 	settings.Add("load_remover", true, "Load Remover");
+	settings.SetToolTip("load_remover", "Don't ");
+	settings.Add("load_remover_igt", false, "Set LiveSplit to Game Time", "load_remover");
+	settings.SetToolTip("load_remover_igt", "Prompt the user if LiveSplit is not configured to compare against Game Time");
 	
 	settings.Add("config_split", true, "Splits Configuration");
-	settings.Add("split_endingA", true, "Ending A", "config_split");
+	settings.Add("split_ending", true, "Game Endings", "config_split");
+	settings.SetToolTip("split_ending", "Split when reaching Ending A, B and C");
+	
+	
 	settings.Add("split_boss_killed", true, "Main Boss Killed", "config_split");
-
+	settings.SetToolTip("split_boss_killed", "Split when dealing the last blow to Bosses");
 	foreach (KeyValuePair<string, string> kvp in vars.boss_rooms)
 	{
 		settings.Add("boss_" + kvp.Value, true, kvp.Key, "split_boss_killed");
 	}
+	settings.SetToolTip("boss_map_abyss_03", "Only split after killing the normal version (Ending B)");
 
 	settings.Add("split_miniboss_killed", true, "Sub-Boss Killed", "config_split");
+	settings.SetToolTip("split_miniboss_killed", "Split when dealing the last blow to Sub-Bosses");
 	foreach (KeyValuePair<string, string> kvp in vars.miniboss_rooms)
 	{
 		settings.Add("boss_" + kvp.Value, true, kvp.Key, "split_miniboss_killed");
 	}
 	
 	settings.Add("split_stone_tablet", false, "Stone tablets", "config_split");
+	settings.SetToolTip("split_stone_tablet", "Split when an amount of stone tablets is collected");
 	settings.Add("split_stone_tablet_1", true, "Tablet (1/7)", "split_stone_tablet");
 	settings.Add("split_stone_tablet_2", true, "Tablet (2/7)", "split_stone_tablet");
 	settings.Add("split_stone_tablet_3", true, "Tablet (3/7)", "split_stone_tablet");
@@ -133,15 +195,24 @@ startup
 	settings.Add("split_stone_tablet_7", true, "Tablet (7/7)", "split_stone_tablet");
 	
 	settings.Add("split_area", false, "Areas", "config_split");
+	settings.SetToolTip("split_area", "Split when entering the area for the first time");
 	foreach (KeyValuePair<string, string> kvp in vars.game_area)
 	{
 		settings.Add(kvp.Value, false, kvp.Key, "split_area");
 	}
 
 	settings.Add("split_respite", false, "Respite Rooms", "config_split");
+	settings.SetToolTip("split_respite", "Split when entering the respite room for the first time");
 	foreach (KeyValuePair<string, string> kvp in vars.respites)
 	{
 		settings.Add(kvp.Value, false, kvp.Key, "split_respite");
+	}
+
+	settings.Add("split_relics", false, "Relics", "config_split");
+	settings.SetToolTip("split_relics", "Split when the relic is added to player's inventory");
+	foreach (KeyValuePair<string, long> kvp in vars.relics_ids)
+	{
+		settings.Add(kvp.Value.ToString(), false, kvp.Key, "split_relics");
 	}
 }
 
@@ -150,8 +221,23 @@ init
 {
 	version = "v1.06.13282(Steam)";
 	current.debug = "";
-	
+
 	vars.splits_done = new HashSet<string>();
+	vars.relics_acquired = new HashSet<long>();
+	
+	current.lastRelicAcquired = 0;
+	
+	if (timer.CurrentTimingMethod == TimingMethod.RealTime && settings["load_remover_igt"])
+	{
+		var message = MessageBox.Show(
+			"Load remover only affects Game Time.\nDo you want to switch LiveSplit to Game Time ?", 
+			"LiveSplit | ENDER LILIES: Quietus of the Knights", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+
+		if (message == DialogResult.Yes)
+		{
+			timer.CurrentTimingMethod = TimingMethod.GameTime;
+		}
+	}
 }
 
 
@@ -160,6 +246,9 @@ start
 	if (old.levelToLoad == "TitleMap" && current.levelToLoad == "PersistentGameMap")
 	{
 		vars.splits_done = new HashSet<string>();
+		vars.relics_acquired = new HashSet<long>();
+		current.lastRelicAcquired = "";
+		old.relicsCount = 0;
 		return true;
 	}
 	return false;
@@ -170,12 +259,29 @@ update
 {
 	if (version == "")
 		return false;
-	
-	if (old.bProcessingLoad || current.bProcessingLoad)
+
+	if (old.bProcessingLoad || current.bProcessingLoad || current.timeSinceStartup < 2)
 	{
 		old.stoneTablets = current.stoneTablets;
 		old.isBossBattle = current.isBossBattle;
+		current.relicsCount = 0;
+		old.relicsCount = 0;
+		return true;
 	}
+	
+	if (current.relicsCount > old.relicsCount)
+	{
+		for (int i=0; i < current.relicsCount; i++)
+		{
+			long relic_id = new DeepPointer((IntPtr)(modules.First().BaseAddress + 0x4621080), 0xDE8, 0x38, 0x0, 0x30, 0x588, 0x190, 0x60, (i * 0x8)).Deref<long>(game);
+			if (!vars.relics_acquired.Contains(relic_id))
+			{
+				current.lastRelicAcquired = relic_id.ToString();
+				vars.relics_acquired.Add(relic_id);
+			}
+		}
+	}
+
 	return true;
 }
 
@@ -201,10 +307,20 @@ split
 	if (old.debug != current.debug)
 		print(current.debug);
 
+	if (current.currentLevel == null)
+		return false;
+
 	if (old.isBossBattle && !current.isBossBattle && current.playerHP > 0 &&
 		!vars.splits_done.Contains("boss_" + current.currentLevel) && settings["boss_" + current.currentLevel])
 	{
 		vars.splits_done.Add("boss_" + current.currentLevel);
+		return true;
+	}
+	
+	if (current.relicsCount > old.relicsCount && settings[current.lastRelicAcquired] &&
+		!vars.splits_done.Contains(current.lastRelicAcquired))
+	{
+		vars.splits_done.Add(current.lastRelicAcquired);
 		return true;
 	}
 
@@ -242,10 +358,10 @@ split
 		}
 	}
 	
-	// ending A
-	if (settings["split_endingA"] &&
+	// ending A, B & C
+	if (settings["split_ending"] &&
 		old.currentBackupIndex != current.currentBackupIndex &&
-		current.currentLevel == "map_outside_02" &&
+		(current.currentLevel == "map_outside_02" || current.currentLevel == "map_abyss_03") &&
 		!vars.splits_done.Contains("ending_" + current.currentLevel))
 	{
 		vars.splits_done.Add("ending_" + current.currentLevel);

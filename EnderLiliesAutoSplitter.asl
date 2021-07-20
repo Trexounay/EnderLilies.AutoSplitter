@@ -10,19 +10,16 @@ state("EnderLiliesSteam-Win64-Shipping", "v1.06.13282(Steam)")
 	bool isBossBattle : 0x044B5560, 0x748, 0x78, 0xDF4;
 
 	// GEngine : 0x4621080
-	// GEngine->GameInstance->LocalPlayers[0]->PlayerController->ParameterPlayerComponent
+	// GEngine->GameInstance->LocalPlayers[0]->PlayerController->ParameterPlayerComponent->FinalPassivePartCount
 	int stoneTablets : 0x4621080, 0xDE8, 0x38, 0x0, 0x30, 0x590, 0xFC;
 
-	// GEngine->GameInstance->LocalPlayers[0]->PlayerController->Character
-	ulong ParameterPlayerComponent : 0x4621080, 0xDE8, 0x38, 0x0, 0x30, 0x590;
-
-	// GEngine->GameInstance->LocalPlayers[0]->PlayerController->Character->HPComponent
+	// GEngine->GameInstance->LocalPlayers[0]->PlayerController->Character->HPComponent->CurrHP
 	int playerHP : 0x4621080, 0xDE8, 0x38, 0x0, 0x30, 0x260, 0x548, 0x114;
 
-	// GEngine->GameInstance->LocalPlayers[0]->PlayerController->Character
+	// GEngine->GameInstance->LocalPlayers[0]->PlayerController->Character->timeSinceCreation
 	float timeSinceStartup : 0x4621080, 0xDE8, 0x38, 0x0, 0x30, 0x260, 0x114;
 
-	// GEngine->GameInstance->Subsystems->SaveSubsystem
+	// GEngine->GameInstance->Subsystems->SaveSubsystem->currentBackupIndex
 	int currentBackupIndex : 0x4621080, 0xDE8, 0xF0, 0xB0, 0x58;
 	
 	// GEngine->GameInstance->Subsystems->WorldLoaderSubsystem
@@ -37,7 +34,7 @@ state("EnderLiliesSteam-Win64-Shipping", "v1.06.13282(Steam)")
 
 startup
 {
-	vars.game_area = new Dictionary<string, string> {
+	vars.gameArea = new Dictionary<string, string> {
 		{"White Parish",		"map_church"},
 		{"Cliffside Hamlet",	"map_village"},
 		{"Ruined Castle",		"map_castle"},
@@ -87,7 +84,7 @@ startup
 		{"Blighted Heart",			"map_abyss_02"},
 	};
 	
-	vars.boss_rooms = new Dictionary<string, string> {
+	vars.bossRooms = new Dictionary<string, string> {
 		{"Guardian Siegrid",			"map_church_03"},
 		{"Gerrod, the Elder Warrior",	"map_village_10"},
 		{"Dark Witch Eleine",			"map_forest_15"},
@@ -99,7 +96,7 @@ startup
 		{"Blighted Lord",				"map_abyss_03"},
 	};
 	
-	vars.miniboss_rooms = new Dictionary<string, string> {
+	vars.minibossRooms = new Dictionary<string, string> {
 		{"Cliffside Hamlet Youth",	"map_church_07"},
 		{"Headless Defender",		"map_village_08"},
 		{"Western Merchant",		"map_village_04_1"},
@@ -119,45 +116,48 @@ startup
 		{"One-Eyed Royal Aegis",	"map_castle_16"},
 	};
 	
-	vars.relics_ids = new Dictionary<string, long> {
-		{"Soiled Prayer Beads", 0x00000000001D946F},
-		{"Royal Aegis Crest", 0x00000000001D947B},
-		{"Broken Music Box", 0x00000000001D9487},
-		{"Cracked Familiar Stone", 0x00000000001D9492},
-		{"Snowdrop Bracelet", 0x00000000001D949D},
-		{"Blighted Appendage", 0x00000000001D94A8},
-		{"Giant's Ring", 0x00000000001D94B1},
+	vars.relicsIds = new Dictionary<int, string> {
+		{0, "Soiled Prayer Beads"},
+		{1, "Royal Aegis Crest"},
+
+		{3, "Broken Music Box"},
+		{4, "Cracked Familiar Stone"},
+		{5, "Snowdrop Bracelet"},
+		{6, "Blighted Appendage"},
+		{7, "Giant's Ring"},
 		
-		{"Ancient Dragon Claw", 0x00000000001D94BE},
-		{"Rusted Blue Ornament", 0x00000000001D94CB},
-		{"Executioner's Gloves", 0x00000000001D94D8},
-		{"Decayed Crown", 0x00000000001D94E4},
-		{"Weathered Necklace", 0x00000000001D94F5},
-		{"Immortal's Crest", 0x00000000001D9501},
-		{"Manisa's Ring", 0x00000000001D950E},
-		
-		{"Aura's Ring", 0x00000000001D9522},
-		{"Kilteus' Ring", 0x00000000001D9536},
-		{"Calivia's Ring", 0x00000000001D9546},
-		{"White Priestess Statue", 0x00000002001D9556},
-		{"Priestess' Doll", 0x00000004001D9556},
-		{"White Priestess' Earrings", 0x00000003001D9556},
-		{"Holy Spring Water", 0x00000000001D9563},
-		
-		{"Nymphilia's Ring", 0x00000000001D9570},
-		{"Spellbound Anklet", 0x00000000001D957B},
-		{"Vibrant Plume", 0x00000000001D9588},
-		{"Ruined Witch's Book", 0x00000000001D9595},
-		{"Bloodstained Ribbon", 0x00000002001D95A0},
-		{"Blightwreathed Blade", 0x00000003001D95A0},
-		{"Heretic's Mask", 0x00000000001D95A9},
-		
-		{"Eldred's Ring", 0x00000000001D95B8},
-		{"Ricorus' Ring", 0x00000000001D95C7},
-		{"Luminant Aegis Curio", 0x000000000000A3C7},
-		{"Lost Heirloom", 0x00000000001D95D1},
-		{"Fretia's Ring", 0x00000000001D95E1},
+		{9, "Ancient Dragon Claw"},
+		{11, "Rusted Blue Ornament"},
+		{12, "Executioner's Gloves"},
+		{13, "Decayed Crown"},
+		{14, "Weathered Necklace"},
+		{15, "Immortal's Crest"},
+		{16, "Manisa's Ring"},
+		{17, "Aura's Ring"},
+
+		{19, "Kilteus' Ring"},
+		{20, "Calivia's Ring"},
+
+		{22, "White Priestess Statue"},
+		{23, "Priestess' Doll"},
+		{24, "White Priestess' Earrings"},
+		{25, "Holy Spring Water"},		
+		{26, "Nymphilia's Ring"},
+		{27, "Spellbound Anklet"},
+		{28, "Vibrant Plume"},
+		{29, "Ruined Witch's Book"},
+		{30, "Bloodstained Ribbon"},
+		{31, "Blightwreathed Blade"},
+		{32, "Heretic's Mask"},
+
+		{34, "Eldred's Ring"},
+		{35, "Ricorus' Ring"},
+
+		{37, "Luminant Aegis Curio"},
+		{38, "Lost Heirloom"},
+		{39, "Fretia's Ring"},
 	};
+	
 	settings.Add("load_remover", true, "Load Remover");
 	settings.SetToolTip("load_remover", "Pause timer during game loadings, only affects Game Time");
 	settings.Add("load_remover_igt", false, "Set LiveSplit to Game Time", "load_remover");
@@ -170,7 +170,7 @@ startup
 	
 	settings.Add("split_boss_killed", true, "Main Boss Killed", "config_split");
 	settings.SetToolTip("split_boss_killed", "Split when dealing the last blow to Bosses");
-	foreach (KeyValuePair<string, string> kvp in vars.boss_rooms)
+	foreach (KeyValuePair<string, string> kvp in vars.bossRooms)
 	{
 		settings.Add("boss_" + kvp.Value, true, kvp.Key, "split_boss_killed");
 	}
@@ -178,7 +178,7 @@ startup
 
 	settings.Add("split_miniboss_killed", true, "Sub-Boss Killed", "config_split");
 	settings.SetToolTip("split_miniboss_killed", "Split when dealing the last blow to Sub-Bosses");
-	foreach (KeyValuePair<string, string> kvp in vars.miniboss_rooms)
+	foreach (KeyValuePair<string, string> kvp in vars.minibossRooms)
 	{
 		settings.Add("boss_" + kvp.Value, true, kvp.Key, "split_miniboss_killed");
 	}
@@ -195,7 +195,7 @@ startup
 	
 	settings.Add("split_area", false, "Areas", "config_split");
 	settings.SetToolTip("split_area", "Split when entering the area for the first time");
-	foreach (KeyValuePair<string, string> kvp in vars.game_area)
+	foreach (KeyValuePair<string, string> kvp in vars.gameArea)
 	{
 		settings.Add(kvp.Value, false, kvp.Key, "split_area");
 	}
@@ -209,9 +209,9 @@ startup
 
 	settings.Add("split_relics", false, "Relics", "config_split");
 	settings.SetToolTip("split_relics", "Split when the relic is added to player's inventory");
-	foreach (KeyValuePair<string, long> kvp in vars.relics_ids)
+	foreach (KeyValuePair<int, string> kvp in vars.relicsIds)
 	{
-		settings.Add(kvp.Value.ToString(), false, kvp.Key, "split_relics");
+		settings.Add(kvp.Value, false, kvp.Value, "split_relics");
 	}
 }
 
@@ -219,20 +219,17 @@ startup
 init
 {
 	version = "v1.06.13282(Steam)";
-	current.debug = "";
 
-	vars.splits_done = new HashSet<string>();
-	vars.relics_acquired = new HashSet<long>();
-	
-	current.lastRelicAcquired = 0;
-	
+	current.debug = "";
+	vars.splitsDone = new HashSet<string>();
+	vars.relicsAcquired = new HashSet<long>();
+	vars.lastRelicAcquired = "";
+
 	if (timer.CurrentTimingMethod == TimingMethod.RealTime && settings["load_remover_igt"])
 	{
-		var message = MessageBox.Show(
+		if (MessageBox.Show(
 			"Load remover only affects Game Time.\nDo you want to switch LiveSplit to Game Time ?", 
-			"LiveSplit | ENDER LILIES: Quietus of the Knights", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
-
-		if (message == DialogResult.Yes)
+			"LiveSplit | ENDER LILIES: Quietus of the Knights", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
 		{
 			timer.CurrentTimingMethod = TimingMethod.GameTime;
 		}
@@ -242,15 +239,11 @@ init
 
 start
 {
-	if (old.levelToLoad == "TitleMap" && current.levelToLoad == "PersistentGameMap")
-	{
-		vars.splits_done = new HashSet<string>();
-		vars.relics_acquired = new HashSet<long>();
-		current.lastRelicAcquired = "";
-		old.relicsCount = 0;
-		return true;
-	}
-	return false;
+	current.debug = "";
+	vars.splitsDone = new HashSet<string>();
+	vars.relicsAcquired = new HashSet<long>();
+	vars.lastRelicAcquired = "";
+	return old.levelToLoad == "TitleMap" && current.levelToLoad == "PersistentGameMap";
 }
 
 
@@ -264,22 +257,33 @@ update
 		old.stoneTablets = current.stoneTablets;
 		old.isBossBattle = current.isBossBattle;
 		current.relicsCount = 0;
-		old.relicsCount = 0;
+		old.relicsCount = current.relicsCount;
+		vars.lastRelicAcquired = "";
 		return true;
 	}
-	
-	if (current.relicsCount > old.relicsCount)
-	{
-		for (int i=0; i < current.relicsCount; i++)
-		{
-			long relic_id = new DeepPointer((IntPtr)(modules.First().BaseAddress + 0x4621080), 0xDE8, 0x38, 0x0, 0x30, 0x588, 0x190, 0x60, (i * 0x8)).Deref<long>(game);
-			if (!vars.relics_acquired.Contains(relic_id))
+
+	if (old.relicsCount < current.relicsCount)
+    {
+        IntPtr relicsInventory = new DeepPointer(0x4621080, 0xDE8, 0x38, 0x0, 0x30, 0x588, 0x190, 0x60).Deref<IntPtr>(game);
+        IntPtr relicsDataTable = new DeepPointer(0x4621080, 0x780, 0x78, 0x118, 0x330, 0x30).Deref<IntPtr>(game);
+        for (int i = 0; i < current.relicsCount; ++i)
+        {
+            long relicId = game.ReadValue<long>(relicsInventory + i * 0x8);
+            if (vars.relicsAcquired.Contains(relicId))
+				continue;
+			for (int j = 0; j < 40; ++j)
 			{
-				current.lastRelicAcquired = relic_id.ToString();
-				vars.relics_acquired.Add(relic_id);
+				long tableRelicID = game.ReadValue<long>(relicsDataTable + j * 0x18);
+				if (relicId == tableRelicID)
+				{
+					vars.relicsAcquired.Add(relicId);
+					vars.lastRelicAcquired = vars.relicsIds[j];
+					print(vars.lastRelicAcquired);
+					break;
+				}
 			}
-		}
-	}
+        }
+    }
 
 	return true;
 }
@@ -293,11 +297,7 @@ isLoading
 
 reset
 {
-	if (current.levelToLoad == "TitleMap")
-	{
-		return true;
-	}
-	return false;
+	return current.levelToLoad == "TitleMap";
 }
 
 
@@ -310,16 +310,16 @@ split
 		return false;
 
 	if (old.isBossBattle && !current.isBossBattle && current.playerHP > 0 &&
-		!vars.splits_done.Contains("boss_" + current.currentLevel) && settings["boss_" + current.currentLevel])
+		!vars.splitsDone.Contains("boss_" + current.currentLevel) && settings["boss_" + current.currentLevel])
 	{
-		vars.splits_done.Add("boss_" + current.currentLevel);
+		vars.splitsDone.Add("boss_" + current.currentLevel);
 		return true;
 	}
 	
-	if (current.relicsCount > old.relicsCount && settings[current.lastRelicAcquired] &&
-		!vars.splits_done.Contains(current.lastRelicAcquired))
+	if (old.relicsCount < current.relicsCount && settings[vars.lastRelicAcquired] &&
+		!vars.splitsDone.Contains(vars.lastRelicAcquired))
 	{
-		vars.splits_done.Add(current.lastRelicAcquired);
+		vars.splitsDone.Add(vars.lastRelicAcquired);
 		return true;
 	}
 
@@ -340,19 +340,19 @@ split
 
 	if (current.previousLevel != "" && old.currentLevel == current.previousLevel)
 	{
-		foreach (KeyValuePair<string, string> kvp in vars.game_area)
+		foreach (KeyValuePair<string, string> kvp in vars.gameArea)
 		{
-			if (settings[kvp.Value] && !vars.splits_done.Contains(kvp.Value)
+			if (settings[kvp.Value] && !vars.splitsDone.Contains(kvp.Value)
 				&& current.currentLevel.StartsWith(kvp.Value))
 			{
-				vars.splits_done.Add(current.currentLevel);
-				vars.splits_done.Add(kvp.Value);
+				vars.splitsDone.Add(current.currentLevel);
+				vars.splitsDone.Add(kvp.Value);
 				return true;
 			}
 		}
-		if (settings[current.currentLevel] && !vars.splits_done.Contains(current.currentLevel))
+		if (settings[current.currentLevel] && !vars.splitsDone.Contains(current.currentLevel))
 		{
-			vars.splits_done.Add(current.currentLevel);
+			vars.splitsDone.Add(current.currentLevel);
 			return true;
 		}
 	}
@@ -361,10 +361,15 @@ split
 	if (settings["split_ending"] &&
 		old.currentBackupIndex != current.currentBackupIndex &&
 		(current.currentLevel == "map_outside_02" || current.currentLevel == "map_abyss_03") &&
-		!vars.splits_done.Contains("ending_" + current.currentLevel))
+		!vars.splitsDone.Contains("ending_" + current.currentLevel))
 	{
-		vars.splits_done.Add("ending_" + current.currentLevel);
+		vars.splitsDone.Add("ending_" + current.currentLevel);
 		return true;
 	}
 	return false;
+}
+
+
+shutdown
+{
 }

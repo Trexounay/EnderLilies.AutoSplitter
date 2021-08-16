@@ -6,29 +6,51 @@ state("EnderLiliesSteam-Win64-Shipping", "v1.06.13282(Steam)")
 {
 	string100 currentLevel : 0x040BF310, 0x88, 0x0;
 	string100 previousLevel : 0x040BF310, 0x60, 0x0;
-
 	bool isBossBattle : 0x044B5560, 0x748, 0x78, 0xDF4;
-
 	// GEngine : 0x4621080
+	// memory size : 78180352
 	// GEngine->GameInstance->LocalPlayers[0]->PlayerController->ParameterPlayerComponent->FinalPassivePartCount
 	int stoneTablets : 0x4621080, 0xDE8, 0x38, 0x0, 0x30, 0x590, 0xFC;
-
 	// GEngine->GameInstance->LocalPlayers[0]->PlayerController->Character->HPComponent->CurrHP
 	int playerHP : 0x4621080, 0xDE8, 0x38, 0x0, 0x30, 0x260, 0x548, 0x114;
-
 	// GEngine->GameInstance->LocalPlayers[0]->PlayerController->Character->timeSinceCreation
 	float timeSinceStartup : 0x4621080, 0xDE8, 0x38, 0x0, 0x30, 0x260, 0x114;
-
 	// GEngine->GameInstance->Subsystems->SaveSubsystem->currentBackupIndex
 	int currentBackupIndex : 0x4621080, 0xDE8, 0xF0, 0xB0, 0x58;
-	
 	// GEngine->GameInstance->Subsystems->WorldLoaderSubsystem
 	string100 levelToLoad : 0x4621080, 0xDE8, 0xF0, 0xF8, 0x70, 0x0;
 	bool bProcessingLoad : 0x4621080, 0xDE8, 0xF0, 0xF8, 0x8C;
-	bool bWaitingForFade : 0x4621080, 0xDE8, 0xF0, 0xF8, 0x8D;
-	
 	// GEngine->GameInstance->LocalPlayers[0]->PlayerController->InventoryComponent->ItemPassiveInventory->Count
 	int relicsCount : 0x4621080, 0xDE8, 0x38, 0x0, 0x30, 0x588, 0x190, 0x68;
+	
+	long relicDataTable: 0x4621080, 0x780, 0x78, 0x118, 0x330, 0x30;
+	long relicInventory: 0x4621080, 0xDE8, 0x38, 0x0, 0x30, 0x588, 0x190, 0x60;
+}
+state("EnderLiliesSteam-Win64-Shipping", "v1.10.13839(Steam)")
+{
+
+	bool isBossBattle : 0x4082F44;
+	// memory size : 78262272
+	// GEngine : 0x4633480
+	// From Generic Crash Data
+	string100 currentLevel : 0x4633480, 0x230, 0x358, 0x6F0, 0x38, 0x70, 0x2AC, 0x88, 0x0;
+	string100 previousLevel : 0x4633480, 0x230, 0x358, 0x6F0, 0x38, 0x70, 0x2AC, 0x60, 0x0;
+	// GEngine->GameInstance->LocalPlayers[0]->PlayerController->ParameterPlayerComponent->FinalPassivePartCount
+	int stoneTablets : 0x4633480, 0xDE8, 0x38, 0x0, 0x30, 0x590, 0xFC;
+	// GEngine->GameInstance->LocalPlayers[0]->PlayerController->Character->HPComponent->CurrHP
+	int playerHP : 0x4633480, 0xDE8, 0x38, 0x0, 0x30, 0x260, 0x550, 0x114;
+	// GEngine->GameInstance->LocalPlayers[0]->PlayerController->Character->timeSinceCreation
+	float timeSinceStartup : 0x4633480, 0xDE8, 0x38, 0x0, 0x30, 0x260, 0x114;
+	// GEngine->GameInstance->Subsystems->SaveSubsystem->currentBackupIndex
+	int currentBackupIndex : 0x4633480, 0xDE8, 0xF0, 0xB0, 0x58;
+	// GEngine->GameInstance->Subsystems->WorldLoaderSubsystem
+	string100 levelToLoad : 0x4633480, 0xDE8, 0xF0, 0xF8, 0x70, 0x0;
+	bool bProcessingLoad : 0x4633480, 0xDE8, 0xF0, 0xF8, 0x8C;
+	// GEngine->GameInstance->LocalPlayers[0]->PlayerController->InventoryComponent->ItemPassiveInventory->Count
+	int relicsCount : 0x4633480, 0xDE8, 0x38, 0x0, 0x30, 0x588, 0x190, 0x68;
+	
+	long relicDataTable: 0x4633480, 0x780, 0x78, 0x118, 0x348, 0x30;
+	long relicInventory: 0x4633480, 0xDE8, 0x38, 0x0, 0x30, 0x588, 0x190, 0x60;
 }
 
 
@@ -155,7 +177,8 @@ startup
 
 		{37, "Luminant Aegis Curio"},
 		{38, "Lost Heirloom"},
-		{39, "Fretia's Ring"},
+		{39, "Blighted Phantom"},
+		{40, "Fretia's Ring"},
 	};
 	
 	settings.Add("load_remover", true, "Load Remover");
@@ -218,9 +241,26 @@ startup
 
 init
 {
-	version = "v1.06.13282(Steam)";
+	version = "";
 
-	current.debug = "";
+	vars.moduleSize = modules.First().ModuleMemorySize;
+	if (vars.moduleSize == 78180352)
+	{
+		version = "v1.06.13282(Steam)";
+		vars.GEngine = 0x4621080;
+		if (vars.relicsIds != null)
+		{
+			var tmp = vars.relicsIds[39];
+			vars.relicsIds[39] = vars.relicsIds[40];
+			vars.relicsIds[40] = tmp;
+		}
+	}
+	else if (vars.moduleSize == 78262272)
+	{
+		version = "v1.10.13839(Steam)";
+		vars.GEngine = 0x4633480;
+	}
+
 	vars.splitsDone = new HashSet<string>();
 	vars.relicsAcquired = new HashSet<long>();
 	vars.lastRelicAcquired = "";
@@ -239,7 +279,6 @@ init
 
 start
 {
-	current.debug = "";
 	vars.splitsDone = new HashSet<string>();
 	vars.relicsAcquired = new HashSet<long>();
 	vars.lastRelicAcquired = "";
@@ -251,7 +290,6 @@ update
 {
 	if (version == "")
 		return false;
-
 	if (old.bProcessingLoad || current.bProcessingLoad || current.timeSinceStartup < 2)
 	{
 		old.stoneTablets = current.stoneTablets;
@@ -261,11 +299,10 @@ update
 		vars.lastRelicAcquired = "";
 		return true;
 	}
-
 	if (old.relicsCount < current.relicsCount)
     {
-        IntPtr relicsInventory = new DeepPointer(0x4621080, 0xDE8, 0x38, 0x0, 0x30, 0x588, 0x190, 0x60).Deref<IntPtr>(game);
-        IntPtr relicsDataTable = new DeepPointer(0x4621080, 0x780, 0x78, 0x118, 0x330, 0x30).Deref<IntPtr>(game);
+        IntPtr relicsInventory = new IntPtr(current.relicInventory);
+        IntPtr relicsDataTable = new IntPtr(current.relicDataTable);
         for (int i = 0; i < current.relicsCount; ++i)
         {
             long relicId = game.ReadValue<long>(relicsInventory + i * 0x8);
@@ -284,7 +321,6 @@ update
 			}
         }
     }
-
 	return true;
 }
 
@@ -303,12 +339,8 @@ reset
 
 split
 {
-	if (old.debug != current.debug)
-		print(current.debug);
-
 	if (current.currentLevel == null)
 		return false;
-
 	if (old.isBossBattle && !current.isBossBattle && current.playerHP > 0 &&
 		!vars.splitsDone.Contains("boss_" + current.currentLevel) && settings["boss_" + current.currentLevel])
 	{

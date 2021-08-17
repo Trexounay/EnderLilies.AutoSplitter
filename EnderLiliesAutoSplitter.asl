@@ -2,6 +2,7 @@
 ** ENDER LILIES: Quietus of the Knights by Trex
 ** https://discord.gg/wWQUzB36dx
 */
+
 state("EnderLiliesSteam-Win64-Shipping", "v1.06.13282(Steam)")
 {
 	string100 currentLevel : 0x040BF310, 0x88, 0x0;
@@ -26,6 +27,7 @@ state("EnderLiliesSteam-Win64-Shipping", "v1.06.13282(Steam)")
 	long relicDataTable: 0x4621080, 0x780, 0x78, 0x118, 0x330, 0x30;
 	long relicInventory: 0x4621080, 0xDE8, 0x38, 0x0, 0x30, 0x588, 0x190, 0x60;
 }
+
 state("EnderLiliesSteam-Win64-Shipping", "v1.10.13839(Steam)")
 {
 
@@ -184,6 +186,7 @@ startup
 		{40, "Fretia's Ring"},
 	};
 	
+	
 	settings.Add("load_remover", true, "Load Remover");
 	settings.SetToolTip("load_remover", "Pause timer during game loadings, only affects Game Time");
 	settings.Add("load_remover_igt", false, "Set LiveSplit to Game Time", "load_remover");
@@ -196,6 +199,7 @@ startup
 	
 	settings.Add("split_boss_killed", true, "Main Boss Killed", "config_split");
 	settings.SetToolTip("split_boss_killed", "Split when dealing the last blow to Bosses");
+
 	foreach (KeyValuePair<string, string> kvp in vars.bossRooms)
 	{
 		settings.Add("boss_" + kvp.Value, true, kvp.Key, "split_boss_killed");
@@ -285,6 +289,7 @@ start
 	vars.splitsDone = new HashSet<string>();
 	vars.relicsAcquired = new HashSet<long>();
 	vars.lastRelicAcquired = "";
+
 	return old.levelToLoad == "TitleMap" && current.levelToLoad == "PersistentGameMap";
 }
 
@@ -329,7 +334,7 @@ update
 
 isLoading
 {
-	return settings["load_remover"] && current.bProcessingLoad;
+	return settings["load_remover"] && (current.bProcessingLoad || old.bProcessingLoad);
 }
 
 
@@ -346,9 +351,6 @@ split
 	if (old.isBossBattle && !current.isBossBattle && current.playerHP > 0 &&
 		!vars.splitsDone.Contains("boss_" + current.currentLevel) && settings["boss_" + current.currentLevel])
 	{
-		print("1111111111");
-		print(current.currentLevel);
-		print(current.isBossBattle.ToString());
 		vars.splitsDone.Add("boss_" + current.currentLevel);
 		return true;
 	}

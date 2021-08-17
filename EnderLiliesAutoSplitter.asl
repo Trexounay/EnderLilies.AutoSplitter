@@ -33,8 +33,9 @@ state("EnderLiliesSteam-Win64-Shipping", "v1.10.13839(Steam)")
 	// memory size : 78262272
 	// GEngine : 0x4633480
 	// From Generic Crash Data
-	string100 currentLevel : 0x4633480, 0x230, 0x358, 0x6F0, 0x38, 0x70, 0x2AC, 0x88, 0x0;
-	string100 previousLevel : 0x4633480, 0x230, 0x358, 0x6F0, 0x38, 0x70, 0x2AC, 0x60, 0x0;
+	string100 currentLevel : 0x40D1030, 0x88, 0x0;
+	string100 previousLevel : 0x40D1030, 0x60, 0x0;
+
 	// GEngine->GameInstance->LocalPlayers[0]->PlayerController->ParameterPlayerComponent->FinalPassivePartCount
 	int stoneTablets : 0x4633480, 0xDE8, 0x38, 0x0, 0x30, 0x590, 0xFC;
 	// GEngine->GameInstance->LocalPlayers[0]->PlayerController->Character->HPComponent->CurrHP
@@ -51,6 +52,8 @@ state("EnderLiliesSteam-Win64-Shipping", "v1.10.13839(Steam)")
 	
 	long relicDataTable: 0x4633480, 0x780, 0x78, 0x118, 0x348, 0x30;
 	long relicInventory: 0x4633480, 0xDE8, 0x38, 0x0, 0x30, 0x588, 0x190, 0x60;
+	
+	float bossRushTime: 0x4633480, 0x780, 0x78, 0x118, 0x318, 0xD0;
 }
 
 
@@ -315,7 +318,6 @@ update
 				{
 					vars.relicsAcquired.Add(relicId);
 					vars.lastRelicAcquired = vars.relicsIds[j];
-					print(vars.lastRelicAcquired);
 					break;
 				}
 			}
@@ -344,6 +346,9 @@ split
 	if (old.isBossBattle && !current.isBossBattle && current.playerHP > 0 &&
 		!vars.splitsDone.Contains("boss_" + current.currentLevel) && settings["boss_" + current.currentLevel])
 	{
+		print("1111111111");
+		print(current.currentLevel);
+		print(current.isBossBattle.ToString());
 		vars.splitsDone.Add("boss_" + current.currentLevel);
 		return true;
 	}

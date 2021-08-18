@@ -39,7 +39,7 @@ state("EnderLiliesSteam-Win64-Shipping", "v1.11.13855(Steam)")
 	string100 previousLevel : 0x40D1060, 0x60, 0x0;
 
 	// GEngine->GameInstance->LocalPlayers[0]->PlayerController->ParameterPlayerComponent->FinalPassivePartCount
-	int stoneTablets : 0x4633480, 0xDE8, 0x38, 0x0, 0x30, 0x590, 0xFC;
+	int stoneTablets : 0x4633480, 0xDE8, 0x38, 0x0, 0x30, 0x590, 0xF8;
 	// GEngine->GameInstance->LocalPlayers[0]->PlayerController->Character->HPComponent->CurrHP
 	int playerHP : 0x4633480, 0xDE8, 0x38, 0x0, 0x30, 0x260, 0x550, 0x114;
 	// GEngine->GameInstance->LocalPlayers[0]->PlayerController->Character->timeSinceCreation

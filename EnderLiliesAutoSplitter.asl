@@ -28,15 +28,15 @@ state("EnderLiliesSteam-Win64-Shipping", "v1.06.13282(Steam)")
 	long relicInventory: 0x4621080, 0xDE8, 0x38, 0x0, 0x30, 0x588, 0x190, 0x60;
 }
 
-state("EnderLiliesSteam-Win64-Shipping", "v1.10.13839(Steam)")
+state("EnderLiliesSteam-Win64-Shipping", "v1.11.13855(Steam)")
 {
 
-	bool isBossBattle : 0x4082F44;
+	bool isBossBattle : 0x4082F74;
 	// memory size : 78262272
 	// GEngine : 0x4633480
 	// From Generic Crash Data
-	string100 currentLevel : 0x40D1030, 0x88, 0x0;
-	string100 previousLevel : 0x40D1030, 0x60, 0x0;
+	string100 currentLevel : 0x40D1060, 0x88, 0x0;
+	string100 previousLevel : 0x40D1060, 0x60, 0x0;
 
 	// GEngine->GameInstance->LocalPlayers[0]->PlayerController->ParameterPlayerComponent->FinalPassivePartCount
 	int stoneTablets : 0x4633480, 0xDE8, 0x38, 0x0, 0x30, 0x590, 0xFC;
@@ -264,7 +264,7 @@ init
 	}
 	else if (vars.moduleSize == 78262272)
 	{
-		version = "v1.10.13839(Steam)";
+		version = "v1.11.13855(Steam)";
 		vars.GEngine = 0x4633480;
 	}
 
@@ -298,6 +298,7 @@ update
 {
 	if (version == "")
 		return false;
+
 	if (old.bProcessingLoad || current.bProcessingLoad || current.timeSinceStartup < 2)
 	{
 		old.stoneTablets = current.stoneTablets;

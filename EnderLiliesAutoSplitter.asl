@@ -3,12 +3,15 @@
 ** https://discord.gg/wWQUzB36dx
 */
 
-state("EnderLiliesSteam-Win64-Shipping", "v1.06.13282(Steam)")
+state("EnderLiliesSteam-Win64-Shipping", "Steam 1.0.6")
 {
+	int GEngine : 0x4621080;
+	bool isBossBattle : 0x044B5560, 0x748, 0x78, 0xDF4;
+	
+	// From Generic Crash Data
 	string100 currentLevel : 0x040BF310, 0x88, 0x0;
 	string100 previousLevel : 0x040BF310, 0x60, 0x0;
-	bool isBossBattle : 0x044B5560, 0x748, 0x78, 0xDF4;
-	// GEngine : 0x4621080
+
 	// memory size : 78180352
 	// GEngine->GameInstance->LocalPlayers[0]->PlayerController->ParameterPlayerComponent->FinalPassivePartCount
 	int stoneTablets : 0x4621080, 0xDE8, 0x38, 0x0, 0x30, 0x590, 0xFC;
@@ -26,14 +29,15 @@ state("EnderLiliesSteam-Win64-Shipping", "v1.06.13282(Steam)")
 	
 	long relicDataTable: 0x4621080, 0x780, 0x78, 0x118, 0x330, 0x30;
 	long relicInventory: 0x4621080, 0xDE8, 0x38, 0x0, 0x30, 0x588, 0x190, 0x60;
+
+	float gameTime: 0x4621080, 0x780, 0x78, 0x118, 0x300, 0xB8;
 }
 
-state("EnderLiliesSteam-Win64-Shipping", "v1.11.13855(Steam)")
+state("EnderLiliesSteam-Win64-Shipping", "Steam 1.1.1")
 {
-
+	int GEngine : 0x4633480;
 	bool isBossBattle : 0x4082F74;
-	// memory size : 78262272
-	// GEngine : 0x4633480
+
 	// From Generic Crash Data
 	string100 currentLevel : 0x40D1060, 0x88, 0x0;
 	string100 previousLevel : 0x40D1060, 0x60, 0x0;
@@ -54,8 +58,37 @@ state("EnderLiliesSteam-Win64-Shipping", "v1.11.13855(Steam)")
 	
 	long relicDataTable: 0x4633480, 0x780, 0x78, 0x118, 0x348, 0x30;
 	long relicInventory: 0x4633480, 0xDE8, 0x38, 0x0, 0x30, 0x588, 0x190, 0x60;
+
+	float gameTime: 0x4633480, 0x780, 0x78, 0x118, 0x310, 0xC8;
+}
+
+state("EnderLiliesSteam-Win64-Shipping", "Steam 1.1.2")
+{
+	int GEngine : 0x4633500;
+	bool isBossBattle : 0x4082F74;
+
+	// From Generic Crash Data
+	string100 currentLevel : 0x40D10E0, 0x88, 0x0;
+	string100 previousLevel : 0x40D10E0, 0x60, 0x0;
+
+	// GEngine->GameInstance->LocalPlayers[0]->PlayerController->ParameterPlayerComponent->FinalPassivePartCount
+	int stoneTablets : 0x4633500, 0xDE8, 0x38, 0x0, 0x30, 0x590, 0xF8;
+	// GEngine->GameInstance->LocalPlayers[0]->PlayerController->Character->HPComponent->CurrHP
+	int playerHP : 0x4633500, 0xDE8, 0x38, 0x0, 0x30, 0x260, 0x550, 0x114;
+	// GEngine->GameInstance->LocalPlayers[0]->PlayerController->Character->timeSinceCreation
+	float timeSinceStartup : 0x4633500, 0xDE8, 0x38, 0x0, 0x30, 0x260, 0x114;
+	// GEngine->GameInstance->Subsystems->SaveSubsystem->currentBackupIndex
+	int currentBackupIndex : 0x4633500, 0xDE8, 0xF0, 0xB0, 0x58;
+	// GEngine->GameInstance->Subsystems->WorldLoaderSubsystem
+	string100 levelToLoad : 0x4633500, 0xDE8, 0xF0, 0xF8, 0x70, 0x0;
+	bool bProcessingLoad : 0x4633500, 0xDE8, 0xF0, 0xF8, 0x8C;
+	// GEngine->GameInstance->LocalPlayers[0]->PlayerController->InventoryComponent->ItemPassiveInventory->Count
+	int relicsCount : 0x4633500, 0xDE8, 0x38, 0x0, 0x30, 0x588, 0x190, 0x68;
 	
-	float bossRushTime: 0x4633480, 0x780, 0x78, 0x118, 0x318, 0xD0;
+	long relicDataTable: 0x4633500, 0x780, 0x78, 0x118, 0x348, 0x30;
+	long relicInventory: 0x4633500, 0xDE8, 0x38, 0x0, 0x30, 0x588, 0x190, 0x60;
+	
+	float gameTime: 0x4633500, 0x780, 0x78, 0x118, 0x310, 0xC8;
 }
 
 
@@ -189,8 +222,8 @@ startup
 	
 	settings.Add("load_remover", true, "Load Remover");
 	settings.SetToolTip("load_remover", "Pause timer during game loadings, only affects Game Time");
-	settings.Add("load_remover_igt", false, "Set LiveSplit to Game Time", "load_remover");
-	settings.SetToolTip("load_remover_igt", "Check if LiveSplit is using Game Time when starting the game");
+	settings.Add("game_time", false, "In Game Time", "load_remover");
+	settings.SetToolTip("game_time", "Get In Game Time from the game's memory");
 	
 	settings.Add("config_split", true, "Splits Configuration");
 	settings.Add("split_ending", true, "Game Endings", "config_split");
@@ -248,39 +281,38 @@ startup
 
 init
 {
-	version = "";
-
-	vars.moduleSize = modules.First().ModuleMemorySize;
-	if (vars.moduleSize == 78180352)
+    byte[] exeMD5HashBytes = new byte[0];
+    using (var md5 = System.Security.Cryptography.MD5.Create())
+    {
+        using (var s = File.Open(modules.First().FileName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+        {
+            exeMD5HashBytes = md5.ComputeHash(s);
+        }
+    }
+    var MD5Hash = exeMD5HashBytes.Select(x => x.ToString("X2")).Aggregate((a, b) => a + b);
+	
+	switch(MD5Hash)
 	{
-		version = "v1.06.13282(Steam)";
-		vars.GEngine = 0x4621080;
-		if (vars.relicsIds != null)
+		case "2597002BD3A237F789808E0B2CB2739F": version = "Steam 1.0.6"; break;
+		case "BC8470E7A0A0B1A2957C715713E8B614": version = "Steam 1.1.1"; break;
+		case "538FEC81491F8767337CB2BF94E40196": version = "Steam 1.1.2"; break;
+		default:
 		{
-			var tmp = vars.relicsIds[39];
-			vars.relicsIds[39] = vars.relicsIds[40];
-			vars.relicsIds[40] = tmp;
+			var gameMessage = MessageBox.Show(
+				"Unrecognized game version\n\n"+
+				"Please report this error in Ender Lilies Discord\n"+
+				"with the following hash:\n\n"+MD5Hash+"\n\n"+
+				"Press OK to copy the above info to the clipboard and close this message.",
+				"Ender Lilies Autosplitter | LiveSplit",
+				MessageBoxButtons.OKCancel,MessageBoxIcon.Warning
+			);
+			if (gameMessage == DialogResult.OK) Clipboard.SetText(MD5Hash);
+			version = "Unknown"; break;
 		}
 	}
-	else if (vars.moduleSize == 78262272)
-	{
-		version = "v1.11.13855(Steam)";
-		vars.GEngine = 0x4633480;
-	}
-
 	vars.splitsDone = new HashSet<string>();
 	vars.relicsAcquired = new HashSet<long>();
 	vars.lastRelicAcquired = "";
-
-	if (timer.CurrentTimingMethod == TimingMethod.RealTime && settings["load_remover_igt"])
-	{
-		if (MessageBox.Show(
-			"Load remover only affects Game Time.\nDo you want to switch LiveSplit to Game Time ?", 
-			"LiveSplit | ENDER LILIES: Quietus of the Knights", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
-		{
-			timer.CurrentTimingMethod = TimingMethod.GameTime;
-		}
-	}
 }
 
 
@@ -289,14 +321,13 @@ start
 	vars.splitsDone = new HashSet<string>();
 	vars.relicsAcquired = new HashSet<long>();
 	vars.lastRelicAcquired = "";
-
 	return old.levelToLoad == "TitleMap" && current.levelToLoad == "PersistentGameMap";
 }
 
 
 update
 {
-	if (version == "")
+	if (version == "Unknown" || version == "")
 		return false;
 
 	if (old.bProcessingLoad || current.bProcessingLoad || current.timeSinceStartup < 2)
@@ -335,6 +366,8 @@ update
 
 isLoading
 {
+	if (settings["game_time"])
+		return true;
 	return settings["load_remover"] && (current.bProcessingLoad || old.bProcessingLoad);
 }
 
@@ -344,6 +377,11 @@ reset
 	return current.levelToLoad == "TitleMap";
 }
 
+gameTime
+{
+	if (settings["game_time"])
+		return TimeSpan.FromSeconds(current.gameTime);
+}
 
 split
 {

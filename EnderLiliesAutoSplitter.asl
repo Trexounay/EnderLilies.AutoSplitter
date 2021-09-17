@@ -218,8 +218,7 @@ startup
 		{39, "Blighted Phantom"},
 		{40, "Fretia's Ring"},
 	};
-	
-	print("startup");
+
 	settings.Add("load_remover", true, "Load Remover");
 	settings.SetToolTip("load_remover", "Pause timer during game loadings, only affects Game Time");
 	settings.Add("game_time", false, "In Game Time", "load_remover");
@@ -315,7 +314,6 @@ init
 			version = "Unknown"; break;
 		}
 	}
-	print("init");
 	vars.splitsDone = new HashSet<string>();
 	vars.relicsAcquired = new HashSet<long>();
 	vars.lastRelicAcquired = "";
@@ -354,7 +352,6 @@ update
             long relicId = game.ReadValue<long>(relicsInventory + i * 0x8);
             if (vars.relicsAcquired.Contains(relicId))
 				continue;
-			print(relicId.ToString());
 			for (int j = 0; j < 41; ++j)
 			{
 				long tableRelicID = game.ReadValue<long>(relicsDataTable + j * 0x18);
@@ -365,8 +362,6 @@ update
 					break;
 				}
 			}
-			print(relicId.ToString());
-			print(vars.lastRelicAcquired);
         }
     }
 	return true;

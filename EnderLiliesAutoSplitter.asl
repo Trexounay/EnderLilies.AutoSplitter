@@ -219,7 +219,7 @@ startup
 		{40, "Fretia's Ring"},
 	};
 	
-	
+	print("startup");
 	settings.Add("load_remover", true, "Load Remover");
 	settings.SetToolTip("load_remover", "Pause timer during game loadings, only affects Game Time");
 	settings.Add("game_time", false, "In Game Time", "load_remover");
@@ -293,7 +293,12 @@ init
 	
 	switch(MD5Hash)
 	{
-		case "2597002BD3A237F789808E0B2CB2739F": version = "Steam 1.0.6"; break;
+		case "2597002BD3A237F789808E0B2CB2739F": version = "Steam 1.0.6";
+		{
+			vars.relicsIds[39] = "Fretia's Ring";
+			vars.relicsIds[40] = "Blighted Phantom";
+			break;
+		}
 		case "BC8470E7A0A0B1A2957C715713E8B614": version = "Steam 1.1.1"; break;
 		case "538FEC81491F8767337CB2BF94E40196": version = "Steam 1.1.2"; break;
 		default:
@@ -310,6 +315,7 @@ init
 			version = "Unknown"; break;
 		}
 	}
+	print("init");
 	vars.splitsDone = new HashSet<string>();
 	vars.relicsAcquired = new HashSet<long>();
 	vars.lastRelicAcquired = "";
@@ -348,7 +354,8 @@ update
             long relicId = game.ReadValue<long>(relicsInventory + i * 0x8);
             if (vars.relicsAcquired.Contains(relicId))
 				continue;
-			for (int j = 0; j < 40; ++j)
+			print(relicId.ToString());
+			for (int j = 0; j < 41; ++j)
 			{
 				long tableRelicID = game.ReadValue<long>(relicsDataTable + j * 0x18);
 				if (relicId == tableRelicID)
@@ -358,6 +365,8 @@ update
 					break;
 				}
 			}
+			print(relicId.ToString());
+			print(vars.lastRelicAcquired);
         }
     }
 	return true;

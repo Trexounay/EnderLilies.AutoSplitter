@@ -3,6 +3,35 @@
 ** https://discord.gg/wWQUzB36dx
 */
 
+state("EnderLiliesSteam-Win64-Shipping", "Steam 1.0.3")
+{
+	int GEngine : 0x461FC40;
+	bool isBossBattle : 0x04623510, 0x128, 0xA0, 0x48;
+	
+	// From Generic Crash Data
+	string100 currentLevel : 0x040BDF90, 0x88, 0x0;
+	string100 previousLevel : 0x040BDF90, 0x60, 0x0;
+
+	// GEngine->GameInstance->LocalPlayers[0]->PlayerController->ParameterPlayerComponent->FinalPassivePartCount
+	int stoneTablets : 0x461FC40, 0xDE8, 0x38, 0x0, 0x30, 0x590, 0xFC;
+	// GEngine->GameInstance->LocalPlayers[0]->PlayerController->Character->HPComponent->CurrHP
+	int playerHP : 0x461FC40, 0xDE8, 0x38, 0x0, 0x30, 0x260, 0x548, 0x114;
+	// GEngine->GameInstance->LocalPlayers[0]->PlayerController->Character->timeSinceCreation
+	float timeSinceStartup : 0x461FC40, 0xDE8, 0x38, 0x0, 0x30, 0x260, 0x114;
+	// GEngine->GameInstance->Subsystems->SaveSubsystem->currentBackupIndex
+	int currentBackupIndex : 0x461FC40, 0xDE8, 0xF0, 0xB0, 0x58;
+	// GEngine->GameInstance->Subsystems->WorldLoaderSubsystem
+	string100 levelToLoad : 0x461FC40, 0xDE8, 0xF0, 0xF8, 0x70, 0x0;
+	bool bProcessingLoad : 0x461FC40, 0xDE8, 0xF0, 0xF8, 0x8C;
+	// GEngine->GameInstance->LocalPlayers[0]->PlayerController->InventoryComponent->ItemPassiveInventory->Count
+	int relicsCount : 0x461FC40, 0xDE8, 0x38, 0x0, 0x30, 0x588, 0x190, 0x68;
+	
+	long relicDataTable: 0x461FC40, 0x780, 0x78, 0x118, 0x330, 0x30;
+	long relicInventory: 0x461FC40, 0xDE8, 0x38, 0x0, 0x30, 0x588, 0x190, 0x60;
+
+	float gameTime: 0x461FC40, 0x780, 0x78, 0x118, 0x300, 0xB8;
+}
+
 state("EnderLiliesSteam-Win64-Shipping", "Steam 1.0.6")
 {
 	int GEngine : 0x4621080;
@@ -321,6 +350,12 @@ init
 	
 	switch(MD5Hash)
 	{
+		case "A34788885E82A9E0D22BC3E8D9C59742": version = "Steam 1.0.3";
+		{
+			vars.relicsIds[39] = "Fretia's Ring";
+			vars.relicsIds[40] = "Blighted Phantom";
+			break;
+		}
 		case "2597002BD3A237F789808E0B2CB2739F": version = "Steam 1.0.6";
 		{
 			vars.relicsIds[39] = "Fretia's Ring";

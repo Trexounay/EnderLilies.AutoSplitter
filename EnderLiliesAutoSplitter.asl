@@ -149,7 +149,7 @@ state("EnderLiliesSteam-Win64-Shipping", "Steam 1.1.3")
 	float gameTime: 0x4651C00, 0x780, 0x78, 0x118, 0x310, 0xC8;
 }
 
-state("EnderLiliesSteam-Win64-Shipping", "Steam 1.1.4")
+state("EnderLiliesSteam-Win64-Shipping", "Steam 1.1.5")
 {
 	int GEngine : 0x4651CC0;
 	bool isBossBattle : 0x40CD2E4;
@@ -394,7 +394,8 @@ init
 		case "BC8470E7A0A0B1A2957C715713E8B614": version = "Steam 1.1.1"; break;
 		case "538FEC81491F8767337CB2BF94E40196": version = "Steam 1.1.2"; break;
 		case "93F25769D1CA2B431DDEE1BAD367118D": version = "Steam 1.1.3"; break;
-		case "CB3D13FA75CA5FEA74D71BC4AECF9B5D": version = "Steam 1.1.4"; break;
+		case "CB3D13FA75CA5FEA74D71BC4AECF9B5D": version = "Steam 1.1.5"; break;
+		case "08C65CF4BB508C0A789F826349B9827B": version = "Steam 1.1.5"; break;
 		default:
 		{
 			var gameMessage = MessageBox.Show(

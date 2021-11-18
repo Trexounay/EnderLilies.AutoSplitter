@@ -6,7 +6,7 @@
 state("EnderLiliesSteam-Win64-Shipping", "Steam 1.0.3")
 {
 	int GEngine : 0x461FC40;
-	bool isBossBattle : 0x04623510, 0x128, 0xA0, 0x48;
+	byte isBossBattle : 0x04623510, 0x128, 0xA0, 0x48;
 	
 	// From Generic Crash Data
 	string100 currentLevel : 0x040BDF90, 0x88, 0x0;
@@ -35,7 +35,7 @@ state("EnderLiliesSteam-Win64-Shipping", "Steam 1.0.3")
 state("EnderLiliesSteam-Win64-Shipping", "Steam 1.0.6")
 {
 	int GEngine : 0x4621080;
-	bool isBossBattle : 0x044B5560, 0x748, 0x78, 0xDF4;
+	byte isBossBattle : 0x044B5560, 0x748, 0x78, 0xDF4;
 	
 	// From Generic Crash Data
 	string100 currentLevel : 0x040BF310, 0x88, 0x0;
@@ -65,7 +65,7 @@ state("EnderLiliesSteam-Win64-Shipping", "Steam 1.0.6")
 state("EnderLiliesSteam-Win64-Shipping", "Steam 1.1.1")
 {
 	int GEngine : 0x4633480;
-	bool isBossBattle : 0x4082F74;
+	byte isBossBattle : 0x4082F74;
 
 	// From Generic Crash Data
 	string100 currentLevel : 0x40D1060, 0x88, 0x0;
@@ -94,7 +94,7 @@ state("EnderLiliesSteam-Win64-Shipping", "Steam 1.1.1")
 state("EnderLiliesSteam-Win64-Shipping", "Steam 1.1.2")
 {
 	int GEngine : 0x4633500;
-	bool isBossBattle : 0x4082F74;
+	byte isBossBattle : 0x4082F74;
 
 	// From Generic Crash Data
 	string100 currentLevel : 0x40D10E0, 0x88, 0x0;
@@ -123,7 +123,7 @@ state("EnderLiliesSteam-Win64-Shipping", "Steam 1.1.2")
 state("EnderLiliesSteam-Win64-Shipping", "Steam 1.1.3")
 {
 	int GEngine : 0x4651C00;
-	bool isBossBattle : 0x40CD2E4;
+	byte isBossBattle : 0x40CD2E4;
 	
 	// From Generic Crash Data
 	string100 currentLevel : 0x40EF460, 0x88, 0x0;
@@ -149,10 +149,10 @@ state("EnderLiliesSteam-Win64-Shipping", "Steam 1.1.3")
 	float gameTime: 0x4651C00, 0x780, 0x78, 0x118, 0x310, 0xC8;
 }
 
-state("EnderLiliesSteam-Win64-Shipping", "Steam 1.1.5")
+state("EnderLiliesSteam-Win64-Shipping", "Steam 1.1.5") // same as 1.1.4
 {
 	int GEngine : 0x4651CC0;
-	bool isBossBattle : 0x40CD2E4;
+	byte isBossBattle : 0x40CD2E4;
 	
 	// From Generic Crash Data
 	string100 currentLevel : 0x40EF4F0, 0x88, 0x0;
@@ -274,6 +274,7 @@ startup
 		{7, "Giant's Ring"},
 		
 		{9, "Ancient Dragon Claw"},
+		
 		{11, "Rusted Blue Ornament"},
 		{12, "Executioner's Gloves"},
 		{13, "Decayed Crown"},
@@ -429,7 +430,6 @@ update
 {
 	if (version == "Unknown" || version == "")
 		return false;
-
 	if (old.bProcessingLoad || current.bProcessingLoad || current.timeSinceStartup < 2)
 	{
 		old.stoneTablets = current.stoneTablets;
@@ -487,7 +487,7 @@ split
 {
 	if (current.currentLevel == null)
 		return false;
-	if (old.isBossBattle && !current.isBossBattle && current.playerHP > 0 &&
+	if (((old.isBossBattle & 1) > 0) && !((current.isBossBattle & 1) > 0) && current.playerHP > 0 &&
 		!vars.splitsDone.Contains("boss_" + current.currentLevel) && settings["boss_" + current.currentLevel])
 	{
 		vars.splitsDone.Add("boss_" + current.currentLevel);

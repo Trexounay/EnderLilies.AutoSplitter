@@ -417,10 +417,7 @@ init
 	vars.relicsAcquired = new HashSet<long>();
 	vars.lastRelicAcquired = "";
 
-	if (version == "Steam 1.0.3")
-	{
-		vars.useLastDeathBoss = true;
-	}
+	vars.useLastDeathBoss = (version == "Steam 1.0.3");
 }
 
 

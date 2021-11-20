@@ -8,6 +8,8 @@ state("EnderLiliesSteam-Win64-Shipping", "Steam 1.0.3")
 	int GEngine : 0x461FC40;
 	bool isBossBattle : 0x04623510, 0x128, 0xA0, 0x48;
 	
+	long lastDeathBoss : 0x461FC40, 0x780, 0x480, 0x0, 0x3A8, 0x270, 0x70, 0x1C8, 0x10;
+	
 	// From Generic Crash Data
 	string100 currentLevel : 0x040BDF90, 0x88, 0x0;
 	string100 previousLevel : 0x040BDF90, 0x60, 0x0;
@@ -406,13 +408,19 @@ init
 				"Ender Lilies Autosplitter | LiveSplit",
 				MessageBoxButtons.OKCancel,MessageBoxIcon.Warning
 			);
-			if (gameMessage == DialogResult.OK) Clipboard.SetText(MD5Hash);
+			if (gameMessage == DialogResult.OK)
+				Clipboard.SetText(MD5Hash);
 			version = "Unknown"; break;
 		}
 	}
 	vars.splitsDone = new HashSet<string>();
 	vars.relicsAcquired = new HashSet<long>();
 	vars.lastRelicAcquired = "";
+
+	if (version == "Steam 1.0.3")
+	{
+		vars.useLastDeathBoss = true;
+	}
 }
 
 
@@ -439,6 +447,7 @@ update
 		vars.lastRelicAcquired = "";
 		return true;
 	}
+
 	if (old.relicsCount < current.relicsCount)
     {
         IntPtr relicsInventory = new IntPtr(current.relicInventory);
@@ -487,8 +496,9 @@ split
 {
 	if (current.currentLevel == null)
 		return false;
-	if (old.isBossBattle && !current.isBossBattle && current.playerHP > 0 &&
-		!vars.splitsDone.Contains("boss_" + current.currentLevel) && settings["boss_" + current.currentLevel])
+	
+	if (((vars.useLastDeathBoss && current.lastDeathBoss > 0 && old.lastDeathBoss == 0) || (old.isBossBattle && !current.isBossBattle)) &&
+		current.playerHP > 0 && !vars.splitsDone.Contains("boss_" + current.currentLevel) && settings["boss_" + current.currentLevel])
 	{
 		vars.splitsDone.Add("boss_" + current.currentLevel);
 		return true;

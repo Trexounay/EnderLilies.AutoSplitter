@@ -493,9 +493,14 @@ split
 {
 	if (current.currentLevel == null)
 		return false;
-	
-	if (((vars.useLastDeathBoss && current.lastDeathBoss > 0 && old.lastDeathBoss == 0) || (old.isBossBattle && !current.isBossBattle)) &&
-		current.playerHP > 0 && !vars.splitsDone.Contains("boss_" + current.currentLevel) && settings["boss_" + current.currentLevel])
+
+	bool killedABoss = old.isBossBattle && !current.isBossBattle;
+	if (vars.useLastDeathBoss && vars.minibossRooms.ContainsValue(current.currentLevel))
+	{
+		killedABoss = current.lastDeathBoss > 0 && old.lastDeathBoss == 0;
+	}
+
+	if (killedABoss && current.playerHP > 0 && !vars.splitsDone.Contains("boss_" + current.currentLevel) && settings["boss_" + current.currentLevel])
 	{
 		vars.splitsDone.Add("boss_" + current.currentLevel);
 		return true;

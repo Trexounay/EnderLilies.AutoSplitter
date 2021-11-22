@@ -6,9 +6,12 @@
 state("EnderLiliesSteam-Win64-Shipping", "Steam 1.0.3")
 {
 	int GEngine : 0x461FC40;
-	bool isBossBattle : 0x04623510, 0x128, 0xA0, 0x48;
+	//bool monsterCount : 0x04623510, 0x128, 0xA0, 0x48;
+	//long lastItem : 0x461FC40, 0x780, 0x480, 0x0, 0x3A8, 0x270, 0x70, 0x1C8, 0x10;
 	
-	long lastDeathBoss : 0x461FC40, 0x780, 0x480, 0x0, 0x3A8, 0x270, 0x70, 0x1C8, 0x10;
+	
+	bool isBossBattle : 0x461FC40, 0xDF0, 0x708, 0x98, 0x18, 0x38, 0x3A8, 0x2A0, 0x548, 0x114;
+	
 	
 	// From Generic Crash Data
 	string100 currentLevel : 0x040BDF90, 0x88, 0x0;
@@ -417,7 +420,7 @@ init
 	vars.relicsAcquired = new HashSet<long>();
 	vars.lastRelicAcquired = "";
 
-	vars.useLastDeathBoss = (version == "Steam 1.0.3");
+	vars.useLastDeathBoss = false;//(version == "Steam 1.0.3");
 }
 
 
@@ -503,6 +506,7 @@ split
 	if (killedABoss && current.playerHP > 0 && !vars.splitsDone.Contains("boss_" + current.currentLevel) && settings["boss_" + current.currentLevel])
 	{
 		vars.splitsDone.Add("boss_" + current.currentLevel);
+		print("boss_" + current.currentLevel);
 		return true;
 	}
 	
@@ -510,6 +514,7 @@ split
 		!vars.splitsDone.Contains(vars.lastRelicAcquired))
 	{
 		vars.splitsDone.Add(vars.lastRelicAcquired);
+		print(vars.lastRelicAcquired);
 		return true;
 	}
 
@@ -524,6 +529,7 @@ split
 				(settings["split_stone_tablet_6"] && current.stoneTablets == 6) ||
 				(settings["split_stone_tablet_7"] && current.stoneTablets == 7))
 			{
+				print("split_stone_tablet_1");
 				return true;
 			}
 	}
@@ -537,12 +543,14 @@ split
 			{
 				vars.splitsDone.Add(current.currentLevel);
 				vars.splitsDone.Add(kvp.Value);
+				print("map"+current.currentLevel);
 				return true;
 			}
 		}
 		if (settings[current.currentLevel] && !vars.splitsDone.Contains(current.currentLevel))
 		{
-			vars.splitsDone.Add(current.currentLevel);
+			vars.splitsDone.Add("area"+current.currentLevel);
+			print(current.currentLevel);
 			return true;
 		}
 	}
@@ -554,6 +562,7 @@ split
 		!vars.splitsDone.Contains("ending_" + current.currentLevel))
 	{
 		vars.splitsDone.Add("ending_" + current.currentLevel);
+		print("ending_" + current.currentLevel);
 		return true;
 	}
 	return false;

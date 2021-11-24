@@ -542,7 +542,7 @@ split
 		}
 		if (settings[current.currentLevel] && !vars.splitsDone.Contains(current.currentLevel))
 		{
-			vars.splitsDone.Add("area"+current.currentLevel);
+			vars.splitsDone.Add(current.currentLevel);
 			print(current.currentLevel);
 			return true;
 		}

@@ -10,7 +10,8 @@ state("EnderLiliesSteam-Win64-Shipping", "Steam 1.0.3")
 	//long lastItem : 0x461FC40, 0x780, 0x480, 0x0, 0x3A8, 0x270, 0x70, 0x1C8, 0x10;
 	
 	
-	bool isBossBattle : 0x461FC40, 0xDF0, 0x708, 0x98, 0x18, 0x38, 0x3A8, 0x2A0, 0x548, 0x114;
+	//bool isBossBattle : 0x461FC40, 0xDF0, 0x708, 0x98, 0x18, 0x38, 0x3A8, 0x2A0, 0x548, 0x114;
+	int isBossBattle : 0x461FC40, 0xDF0, 0x708, 0x98, 0x18, 0x38, 0x3A8, 0x2A0, 0x548, 0x114;
 	
 	
 	// From Generic Crash Data
@@ -381,13 +382,14 @@ init
         }
     }
     var MD5Hash = exeMD5HashBytes.Select(x => x.ToString("X2")).Aggregate((a, b) => a + b);
-	
+	vars.useBossHP = false;
 	switch(MD5Hash)
 	{
 		case "A34788885E82A9E0D22BC3E8D9C59742": version = "Steam 1.0.3";
 		{
 			vars.relicsIds[39] = "Fretia's Ring";
 			vars.relicsIds[40] = "Blighted Phantom";
+			vars.useBossHP = true;
 			break;
 		}
 		case "2597002BD3A237F789808E0B2CB2739F": version = "Steam 1.0.6";
@@ -419,6 +421,7 @@ init
 	vars.splitsDone = new HashSet<string>();
 	vars.relicsAcquired = new HashSet<long>();
 	vars.lastRelicAcquired = "";
+
 }
 
 
@@ -494,12 +497,17 @@ split
 {
 	if (current.currentLevel == null)
 		return false;
-
-	bool killedABoss = old.isBossBattle && !current.isBossBattle;
+	bool killedABoss = false;
+	if (vars.useBossHP)
+		killedABoss = old.isBossBattle > 0 && current.isBossBattle <= 0;
+	else
+		killedABoss = old.isBossBattle && !current.isBossBattle;
 	if (killedABoss && current.playerHP > 0 && !vars.splitsDone.Contains("boss_" + current.currentLevel) && settings["boss_" + current.currentLevel])
 	{
-		vars.splitsDone.Add("boss_" + current.currentLevel);
 		print("boss_" + current.currentLevel);
+		print(old.isBossBattle.ToString());
+		print(current.isBossBattle.ToString());
+		vars.splitsDone.Add("boss_" + current.currentLevel);
 		return true;
 	}
 	
@@ -507,7 +515,6 @@ split
 		!vars.splitsDone.Contains(vars.lastRelicAcquired))
 	{
 		vars.splitsDone.Add(vars.lastRelicAcquired);
-		print(vars.lastRelicAcquired);
 		return true;
 	}
 
@@ -522,7 +529,6 @@ split
 				(settings["split_stone_tablet_6"] && current.stoneTablets == 6) ||
 				(settings["split_stone_tablet_7"] && current.stoneTablets == 7))
 			{
-				print("split_stone_tablet_1");
 				return true;
 			}
 	}
@@ -536,14 +542,12 @@ split
 			{
 				vars.splitsDone.Add(current.currentLevel);
 				vars.splitsDone.Add(kvp.Value);
-				print("map"+current.currentLevel);
 				return true;
 			}
 		}
 		if (settings[current.currentLevel] && !vars.splitsDone.Contains(current.currentLevel))
 		{
 			vars.splitsDone.Add(current.currentLevel);
-			print(current.currentLevel);
 			return true;
 		}
 	}
@@ -555,7 +559,6 @@ split
 		!vars.splitsDone.Contains("ending_" + current.currentLevel))
 	{
 		vars.splitsDone.Add("ending_" + current.currentLevel);
-		print("ending_" + current.currentLevel);
 		return true;
 	}
 	return false;

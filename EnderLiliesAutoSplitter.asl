@@ -11,6 +11,8 @@ state("EnderLiliesSteam-Win64-Shipping", "Steam 1.0.3")
 	
 	
 	//bool isBossBattle : 0x461FC40, 0xDF0, 0x708, 0x98, 0x18, 0x38, 0x3A8, 0x2A0, 0x548, 0x114;
+	long playerHPComp : 0x461FC40, 0xDE8, 0x38, 0x0, 0x30, 0x260, 0x548, 0x0;
+	long bossHPComp : 0x461FC40, 0xDF0, 0x708, 0x98, 0x18, 0x38, 0x3A8, 0x2A0, 0x548, 0x0;
 	int isBossBattle : 0x461FC40, 0xDF0, 0x708, 0x98, 0x18, 0x38, 0x3A8, 0x2A0, 0x548, 0x114;
 	
 	
@@ -499,9 +501,11 @@ split
 		return false;
 	bool killedABoss = false;
 	if (vars.useBossHP)
-		killedABoss = old.isBossBattle > 0 && current.isBossBattle <= 0;
+		killedABoss = old.bossHPComp != 0 && old.playerHPComp == old.bossHPComp && old.isBossBattle > 0 && current.isBossBattle <= 0;
 	else
 		killedABoss = old.isBossBattle && !current.isBossBattle;
+	
+	
 	if (killedABoss && current.playerHP > 0 && !vars.splitsDone.Contains("boss_" + current.currentLevel) && settings["boss_" + current.currentLevel])
 	{
 		print("boss_" + current.currentLevel);

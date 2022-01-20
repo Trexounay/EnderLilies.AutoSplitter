@@ -5,17 +5,22 @@
 
 state("EnderLiliesSteam-Win64-Shipping", "Steam 1.0.3")
 {
-	int GEngine : 0x461FC40;
+	//int GEngine : 0x461FC40;
+	//int GNames : 0x044D1A00;
+	//int GObjects : 0x044E9FA8;
 	//bool monsterCount : 0x04623510, 0x128, 0xA0, 0x48;
 	//long lastItem : 0x461FC40, 0x780, 0x480, 0x0, 0x3A8, 0x270, 0x70, 0x1C8, 0x10;
-	
-	
+
+	int EnemyControllerTarget : 0x461FC40, 0xDE8, 0x38, 0x0, 0x30, 0x630, 0x840, 0x0;
+	// GEngine->GameInstance->LocalPlayers[0]->PlayerController->DefaultViewTarget->EnemyControllerTarget->Count
+	int isBossBattle : 0x461FC40, 0xDE8, 0x38, 0x0, 0x30, 0x630, 0x848;
+
 	//bool isBossBattle : 0x461FC40, 0xDF0, 0x708, 0x98, 0x18, 0x38, 0x3A8, 0x2A0, 0x548, 0x114;
-	long playerHPComp : 0x461FC40, 0xDE8, 0x38, 0x0, 0x30, 0x260, 0x548, 0x0;
-	long bossHPComp : 0x461FC40, 0xDF0, 0x708, 0x98, 0x18, 0x38, 0x3A8, 0x2A0, 0x548, 0x0;
-	int isBossBattle : 0x461FC40, 0xDF0, 0x708, 0x98, 0x18, 0x38, 0x3A8, 0x2A0, 0x548, 0x114;
-	
-	
+	//long playerHPComp : 0x461FC40, 0xDE8, 0x38, 0x0, 0x30, 0x260, 0x548, 0x0;
+	//long bossHPComp : 0x461FC40, 0xDF0, 0x708, 0x98, 0x18, 0x38, 0x3A8, 0x2A0, 0x548, 0x0;
+	//int isBossBattle : 0x461FC40, 0xDF0, 0x708, 0x98, 0x18, 0x38, 0x3A8, 0x2A0, 0x548, 0x114;
+	//int bossName : 0x461FC40, 0xDF0, 0x708, 0x98, 0x18, 0x38, 0x3A8, 0x2A0, 0x18;
+
 	// From Generic Crash Data
 	string100 currentLevel : 0x040BDF90, 0x88, 0x0;
 	string100 previousLevel : 0x040BDF90, 0x60, 0x0;
@@ -42,7 +47,7 @@ state("EnderLiliesSteam-Win64-Shipping", "Steam 1.0.3")
 
 state("EnderLiliesSteam-Win64-Shipping", "Steam 1.0.6")
 {
-	int GEngine : 0x4621080;
+	//int GEngine : 0x4621080;
 	bool isBossBattle : 0x044B5560, 0x748, 0x78, 0xDF4;
 	
 	// From Generic Crash Data
@@ -72,7 +77,7 @@ state("EnderLiliesSteam-Win64-Shipping", "Steam 1.0.6")
 
 state("EnderLiliesSteam-Win64-Shipping", "Steam 1.1.1")
 {
-	int GEngine : 0x4633480;
+	//int GEngine : 0x4633480;
 	bool isBossBattle : 0x4082F74;
 
 	// From Generic Crash Data
@@ -101,7 +106,7 @@ state("EnderLiliesSteam-Win64-Shipping", "Steam 1.1.1")
 
 state("EnderLiliesSteam-Win64-Shipping", "Steam 1.1.2")
 {
-	int GEngine : 0x4633500;
+	//int GEngine : 0x4633500;
 	bool isBossBattle : 0x4082F74;
 
 	// From Generic Crash Data
@@ -130,7 +135,7 @@ state("EnderLiliesSteam-Win64-Shipping", "Steam 1.1.2")
 
 state("EnderLiliesSteam-Win64-Shipping", "Steam 1.1.3")
 {
-	int GEngine : 0x4651C00;
+	//int GEngine : 0x4651C00;
 	bool isBossBattle : 0x40CD2E4;
 	
 	// From Generic Crash Data
@@ -159,7 +164,7 @@ state("EnderLiliesSteam-Win64-Shipping", "Steam 1.1.3")
 
 state("EnderLiliesSteam-Win64-Shipping", "Steam 1.1.5")
 {
-	int GEngine : 0x4651CC0;
+	//int GEngine : 0x4651CC0;
 	bool isBossBattle : 0x40CD2E4;
 	
 	// From Generic Crash Data
@@ -282,6 +287,7 @@ startup
 		{7, "Giant's Ring"},
 		
 		{9, "Ancient Dragon Claw"},
+		
 		{11, "Rusted Blue Ornament"},
 		{12, "Executioner's Gloves"},
 		{13, "Decayed Crown"},
@@ -392,6 +398,23 @@ init
 			vars.relicsIds[39] = "Fretia's Ring";
 			vars.relicsIds[40] = "Blighted Phantom";
 			vars.useBossHP = true;
+			vars.GetName = new Func<int, string>((int comparison) => 
+			{
+				int block = comparison >> 16;
+				int offset = comparison & 0xFFFF;
+
+				DeepPointer header = new DeepPointer(0x044D1A00 + 0x10 + (0x8 * block));
+				IntPtr ptr = header.Deref<IntPtr>(game) + (0x2 * offset);
+				Int16 len = (Int16)(game.ReadValue<Int16>(ptr) >> 6);
+				return game.ReadString(ptr + 0x2, len);
+			});
+			vars.GetObjFromWeakPtr = new Func<int, IntPtr>((int ObjectIndex) => 
+			{
+				int block = ObjectIndex / (64 * 1024);
+				int offset = ObjectIndex % (64 * 1024);
+				DeepPointer pawn = new DeepPointer(0x044E9FA8, (0x8 * block), (0x18 * offset));
+				return pawn.Deref<IntPtr>(game, IntPtr.Zero);
+			});
 			break;
 		}
 		case "2597002BD3A237F789808E0B2CB2739F": version = "Steam 1.0.6";
@@ -423,7 +446,6 @@ init
 	vars.splitsDone = new HashSet<string>();
 	vars.relicsAcquired = new HashSet<long>();
 	vars.lastRelicAcquired = "";
-
 }
 
 
@@ -445,33 +467,31 @@ update
 	{
 		old.stoneTablets = current.stoneTablets;
 		old.isBossBattle = current.isBossBattle;
-		current.relicsCount = 0;
 		old.relicsCount = current.relicsCount;
 		vars.lastRelicAcquired = "";
 		return true;
 	}
-
 	if (old.relicsCount < current.relicsCount)
-    {
-        IntPtr relicsInventory = new IntPtr(current.relicInventory);
-        IntPtr relicsDataTable = new IntPtr(current.relicDataTable);
-        for (int i = 0; i < current.relicsCount; ++i)
-        {
-            long relicId = game.ReadValue<long>(relicsInventory + i * 0x8);
-            if (vars.relicsAcquired.Contains(relicId))
+	{
+		IntPtr relicsInventory = new IntPtr(current.relicInventory);
+		IntPtr relicsDataTable = new IntPtr(current.relicDataTable);
+		for (int i = 0; i < current.relicsCount; ++i)
+		{
+			long relicId = game.ReadValue<long>(relicsInventory + i * 0x8);
+			if (vars.relicsAcquired.Contains(relicId))
 				continue;
-			for (int j = 0; j < 41; ++j)
+			foreach (KeyValuePair<int, string> pair in vars.relicsIds)
 			{
-				long tableRelicID = game.ReadValue<long>(relicsDataTable + j * 0x18);
+				long tableRelicID = game.ReadValue<long>(relicsDataTable + pair.Key * 0x18);
 				if (relicId == tableRelicID)
 				{
 					vars.relicsAcquired.Add(relicId);
-					vars.lastRelicAcquired = vars.relicsIds[j];
+					vars.lastRelicAcquired = pair.Value;
 					break;
 				}
 			}
-        }
-    }
+		}
+	}
 	return true;
 }
 
@@ -501,16 +521,23 @@ split
 		return false;
 	bool killedABoss = false;
 	if (vars.useBossHP)
-		killedABoss = old.bossHPComp != 0 && old.playerHPComp == old.bossHPComp && old.isBossBattle > 0 && current.isBossBattle <= 0;
+	{
+		if (!old.bProcessingLoad && !current.bProcessingLoad && current.isBossBattle > 0)
+		{
+			IntPtr controller = vars.GetObjFromWeakPtr(current.EnemyControllerTarget);
+			if (controller != IntPtr.Zero)
+			{
+				long pawn = game.ReadValue<long>(controller + 0x250, -1);
+				killedABoss = pawn == 0;
+			}
+		}
+	}
 	else
 		killedABoss = old.isBossBattle && !current.isBossBattle;
 	
 	
 	if (killedABoss && current.playerHP > 0 && !vars.splitsDone.Contains("boss_" + current.currentLevel) && settings["boss_" + current.currentLevel])
 	{
-		print("boss_" + current.currentLevel);
-		print(old.isBossBattle.ToString());
-		print(current.isBossBattle.ToString());
 		vars.splitsDone.Add("boss_" + current.currentLevel);
 		return true;
 	}

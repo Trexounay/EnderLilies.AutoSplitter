@@ -8,8 +8,8 @@ state("EnderLiliesSteam-Win64-Shipping", "Steam 1.0.3")
 	//int GEngine : 0x461FC40;
 	//int GNames : 0x044D1A00;
 	//int GObjects : 0x044E9FA8;
-	//bool monsterCount : 0x04623510, 0x128, 0xA0, 0x48;
 	//long lastItem : 0x461FC40, 0x780, 0x480, 0x0, 0x3A8, 0x270, 0x70, 0x1C8, 0x10;
+	int monsterCount : 0x04623510, 0x128, 0xA0, 0x48;
 
 	int EnemyControllerTarget : 0x461FC40, 0xDE8, 0x38, 0x0, 0x30, 0x630, 0x840, 0x0;
 	// GEngine->GameInstance->LocalPlayers[0]->PlayerController->DefaultViewTarget->EnemyControllerTarget->Count
@@ -415,6 +415,7 @@ init
 				DeepPointer pawn = new DeepPointer(0x044E9FA8, (0x8 * block), (0x18 * offset));
 				return pawn.Deref<IntPtr>(game, IntPtr.Zero);
 			});
+			vars.bossRoomsHash = new HashSet<string>(vars.bossRooms.Values);
 			break;
 		}
 		case "2597002BD3A237F789808E0B2CB2739F": version = "Steam 1.0.6";
@@ -522,13 +523,20 @@ split
 	bool killedABoss = false;
 	if (vars.useBossHP)
 	{
-		if (!old.bProcessingLoad && !current.bProcessingLoad && current.isBossBattle > 0)
+		if (!old.bProcessingLoad && !current.bProcessingLoad)
 		{
-			IntPtr controller = vars.GetObjFromWeakPtr(current.EnemyControllerTarget);
-			if (controller != IntPtr.Zero)
+			if (vars.bossRoomsHash.Contains(current.currentLevel))
 			{
-				long pawn = game.ReadValue<long>(controller + 0x250, -1);
-				killedABoss = pawn == 0;
+				killedABoss = old.monsterCount > 0 && current.monsterCount == 0;
+			}
+			else if (current.isBossBattle > 0)
+			{
+				IntPtr controller = vars.GetObjFromWeakPtr(current.EnemyControllerTarget);
+				if (controller != IntPtr.Zero)
+				{
+					long pawn = game.ReadValue<long>(controller + 0x250, -1);
+					killedABoss = pawn == 0;
+				}
 			}
 		}
 	}

@@ -468,6 +468,7 @@ update
 	{
 		old.stoneTablets = current.stoneTablets;
 		old.isBossBattle = current.isBossBattle;
+		current.relicsCount = 0;
 		old.relicsCount = current.relicsCount;
 		vars.lastRelicAcquired = "";
 		return true;
@@ -549,7 +550,6 @@ split
 		vars.splitsDone.Add("boss_" + current.currentLevel);
 		return true;
 	}
-	
 	if (old.relicsCount < current.relicsCount && settings[vars.lastRelicAcquired] &&
 		!vars.splitsDone.Contains(vars.lastRelicAcquired))
 	{

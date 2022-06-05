@@ -191,6 +191,36 @@ state("EnderLiliesSteam-Win64-Shipping", "Steam 1.1.5")
 	float gameTime: 0x4651CC0, 0x780, 0x78, 0x118, 0x310, 0xC8;
 }
 
+state("EnderLiliesSteam-Win64-Shipping", "Steam 1.1.6")
+{
+	//int GEngine : 0x04651D00; 
+	bool isBossBattle : 0x40CD2E4;
+	
+	// From Generic Crash Data
+	string100 currentLevel : 0x040EF540, 0x88, 0x0;
+	string100 previousLevel : 0x040EF540, 0x60, 0x0;
+
+	// GEngine->GameInstance->LocalPlayers[0]->PlayerController->ParameterPlayerComponent->FinalPassivePartCount
+	int stoneTablets : 0x04651D00, 0xDE8, 0x38, 0x0, 0x30, 0x590, 0xF8;
+	// GEngine->GameInstance->LocalPlayers[0]->PlayerController->Character->HPComponent->CurrHP
+	int playerHP : 0x04651D00, 0xDE8, 0x38, 0x0, 0x30, 0x260, 0x550, 0x114;
+	// GEngine->GameInstance->LocalPlayers[0]->PlayerController->Character->timeSinceCreation
+	float timeSinceStartup : 0x04651D00, 0xDE8, 0x38, 0x0, 0x30, 0x260, 0x114;
+	// GEngine->GameInstance->Subsystems->SaveSubsystem->currentBackupIndex
+	int currentBackupIndex : 0x04651D00, 0xDE8, 0xF0, 0xB0, 0x58;
+	// GEngine->GameInstance->Subsystems->WorldLoaderSubsystem
+	string100 levelToLoad : 0x04651D00, 0xDE8, 0xF0, 0xF8, 0x70, 0x0;
+	bool bProcessingLoad : 0x04651D00, 0xDE8, 0xF0, 0xF8, 0x8C;
+	// GEngine->GameInstance->LocalPlayers[0]->PlayerController->InventoryComponent->ItemPassiveInventory->Count
+	int relicsCount : 0x04651D00, 0xDE8, 0x38, 0x0, 0x30, 0x588, 0x190, 0x68;
+	
+	long relicDataTable: 0x04651D00, 0x780, 0x78, 0x118, 0x348, 0x30;
+	long relicInventory: 0x04651D00, 0xDE8, 0x38, 0x0, 0x30, 0x588, 0x190, 0x60;
+	
+	float gameTime: 0x04651D00, 0x780, 0x78, 0x118, 0x310, 0xC8;
+}
+
+
 
 startup
 {
@@ -381,15 +411,15 @@ startup
 
 init
 {
-    byte[] exeMD5HashBytes = new byte[0];
-    using (var md5 = System.Security.Cryptography.MD5.Create())
-    {
-        using (var s = File.Open(modules.First().FileName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
-        {
-            exeMD5HashBytes = md5.ComputeHash(s);
-        }
-    }
-    var MD5Hash = exeMD5HashBytes.Select(x => x.ToString("X2")).Aggregate((a, b) => a + b);
+	byte[] exeMD5HashBytes = new byte[0];
+	using (var md5 = System.Security.Cryptography.MD5.Create())
+	{
+		using (var s = File.Open(modules.First().FileName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+		{
+			exeMD5HashBytes = md5.ComputeHash(s);
+		}
+	}
+	var MD5Hash = exeMD5HashBytes.Select(x => x.ToString("X2")).Aggregate((a, b) => a + b);
 	vars.useBossHP = false;
 	switch(MD5Hash)
 	{
@@ -429,6 +459,7 @@ init
 		case "93F25769D1CA2B431DDEE1BAD367118D": version = "Steam 1.1.3"; break;
 		case "CB3D13FA75CA5FEA74D71BC4AECF9B5D": version = "Steam 1.1.5"; break;
 		case "08C65CF4BB508C0A789F826349B9827B": version = "Steam 1.1.5"; break;
+		case "8D8F25328D761B545B411641C56386A3": version = "Steam 1.1.6"; break;
 		default:
 		{
 			var gameMessage = MessageBox.Show(
@@ -473,7 +504,7 @@ update
 		vars.lastRelicAcquired = "";
 		return true;
 	}
-	if (old.relicsCount < current.relicsCount)
+	if (current.relicsCount > 0 && current.relicsCount < 42 && old.relicsCount < current.relicsCount)
 	{
 		IntPtr relicsInventory = new IntPtr(current.relicInventory);
 		IntPtr relicsDataTable = new IntPtr(current.relicDataTable);
@@ -550,7 +581,7 @@ split
 		vars.splitsDone.Add("boss_" + current.currentLevel);
 		return true;
 	}
-	if (old.relicsCount < current.relicsCount && settings[vars.lastRelicAcquired] &&
+	if (current.relicsCount > 0 && current.relicsCount < 42 && old.relicsCount < current.relicsCount && settings[vars.lastRelicAcquired] &&
 		!vars.splitsDone.Contains(vars.lastRelicAcquired))
 	{
 		vars.splitsDone.Add(vars.lastRelicAcquired);

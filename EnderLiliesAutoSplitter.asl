@@ -533,7 +533,7 @@ isLoading
 {
 	if (settings["game_time"])
 		return true;
-	return settings["load_remover"] && (current.bProcessingLoad || old.bProcessingLoad);
+	return settings["load_remover"] && (current.bProcessingLoad || old.bProcessingLoad || current.timeSinceStartup <= 0);
 }
 
 
@@ -550,7 +550,7 @@ gameTime
 
 split
 {
-	if (current.currentLevel == null)
+	if (current.currentLevel == null || current.timeSinceStartup <= 0)
 		return false;
 	bool killedABoss = false;
 	if (vars.useBossHP)
@@ -574,7 +574,6 @@ split
 	}
 	else
 		killedABoss = old.isBossBattle && !current.isBossBattle;
-	
 	
 	if (killedABoss && current.playerHP > 0 && !vars.splitsDone.Contains("boss_" + current.currentLevel) && settings["boss_" + current.currentLevel])
 	{
@@ -621,7 +620,6 @@ split
 			return true;
 		}
 	}
-	
 	// ending A, B & C
 	if (settings["split_ending"] &&
 		old.currentBackupIndex != current.currentBackupIndex &&

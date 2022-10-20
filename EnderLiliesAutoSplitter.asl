@@ -533,7 +533,7 @@ isLoading
 {
 	if (settings["game_time"])
 		return true;
-	return settings["load_remover"] && (current.bProcessingLoad || old.bProcessingLoad || current.timeSinceStartup <= 0);
+	return settings["load_remover"] && (current.bProcessingLoad || old.bProcessingLoad);
 }
 
 
